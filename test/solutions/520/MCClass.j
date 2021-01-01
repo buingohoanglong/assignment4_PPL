@@ -4,6 +4,7 @@
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+.var 1 is x F from Label0 to Label1
 	ldc 6.6
 	fstore_1
 Label0:

@@ -162,13 +162,13 @@ class CodeGenVisitor(BaseVisitor):
             pass
 
         if c.frame == None: # global variable
-            # self.emit.printout(self.emit.emitATTRIBUTE(ast.variable.name, var_type, False, CName(self.className)))
+            self.emit.printout(self.emit.emitATTRIBUTE(ast.variable.name, var_type, False, CName(self.className)))
             self.push_value_on_stack(str(ast.varInit.value), var_type, c.frame)
             self.emit.printout(self.emit.emitPUTSTATIC(ast.variable.name, var_type, c.frame))
             return Symbol(ast.variable.name, var_type, CName(self.className))
         else:   # local variable
             index = c.frame.getNewIndex()
-            # self.emit.printout(self.emit.emitVAR(index, ast.variable.name, var_type, c.frame.getStartLabel(), c.frame.getEndLabel(), c.frame))
+            self.emit.printout(self.emit.emitVAR(index, ast.variable.name, var_type, c.frame.getStartLabel(), c.frame.getEndLabel(), c.frame))
             self.push_value_on_stack(str(ast.varInit.value), var_type, c.frame)
             self.emit.printout(self.emit.emitWRITEVAR(ast.variable.name, var_type, index, c.frame))
             return Symbol(ast.variable.name, var_type, Index(index))
@@ -249,12 +249,12 @@ class CodeGenVisitor(BaseVisitor):
         for vardecl in ast.elseStmt[0]:
             local.sym.append(self.visit(vardecl, local))
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), c.frame))
+        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
         for stmt in ast.elseStmt[1]:
             self.visit(stmt, local)
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), c.frame))
+        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
         c.frame.exitScope()
 
@@ -262,25 +262,120 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitLABEL(label_lst[-1], c.frame))
 
 
-
-    
     def visitFor(self,ast, c):
-        pass
+        c.frame.enterScope(False)
+        c.frame.enterLoop()
+
+        # init
+        exp1, type1 = self.visit(ast.expr1, Access(c.frame, c.sym, False))
+        self.emit.printout(exp1)
+        idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, True))
+        self.emit.printout(idx)
+
+        # condition
+        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # continue label
+        exp2, type2 = self.visit(ast.expr2, Access(c.frame, c.sym, False))
+        self.emit.printout(exp2)
+        self.emit.printout(self.emit.emitIFFALSE(c.frame.getBreakLabel(), c.frame))        
+
+        # loop body
+        local = deepcopy(c)
+        local.frame = c.frame
+        for vardecl in ast.loop[0]:
+            local.sym.append(self.visit(vardecl, local))
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
+
+        for stmt in ast.loop[1]:
+            self.visit(stmt, local)
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+
+        # update
+        exp3, type3 = self.visit(ast.expr3, Access(c.frame, c.sym, False))  # load exp3
+        self.emit.printout(exp1)
+        idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, False)) # load idx
+        self.emit.printout(idx)
+        self.emit.printout(self.emit.emitADDOP('+', IntType(), c.frame))    # add
+        idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, True))  # store back to idx
+        self.emit.printout(idx)
+
+        # goto continue label
+        self.emit.printout(self.emit.emitGOTO(c.frame.getContinueLabel(), c.frame))
+        # break label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
+
+        c.frame.exitLoop()
+        c.frame.exitScope()
 
     def visitBreak(self,ast, c):
-        pass
+        self.emit.printout(self.emit.emitGOTO(c.frame.getBreakLabel(), c.frame))
 
     def visitContinue(self,ast, c):
-        pass
+        self.emit.printout(self.emit.emitGOTO(c.frame.getContinueLabel(), c.frame))
 
     def visitReturn(self,ast, c):
         pass
 
     def visitDowhile(self,ast, c):
-        pass
+        c.frame.enterScope(False)
+        c.frame.enterLoop()
+        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
+
+        # loop body
+        local = deepcopy(c)
+        local.frame = c.frame
+        for vardecl in ast.sl[0]:
+            local.sym.append(self.visit(vardecl, local))
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
+
+        for stmt in ast.sl[1]:
+            self.visit(stmt, local)
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+
+        # loop contidtion
+        exp, exp_type = self.visit(ast.exp, Access(c.frame, c.sym, False))
+        self.emit.printout(exp) # condition expression
+        self.emit.printout(self.emit.emitIFTRUE(c.frame.getContinueLabel(), c.frame)) # if condition true, continue loop
+
+        # emit end loop label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
+
+        c.frame.exitLoop()
+        c.frame.exitScope()
 
     def visitWhile(self,ast, c):
-        pass
+        c.frame.enterScope(False)
+        c.frame.enterLoop()
+        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
+
+        # loop contidtion
+        exp, exp_type = self.visit(ast.exp, Access(c.frame, c.sym, False))
+        self.emit.printout(exp) # condition expression
+        self.emit.printout(self.emit.emitIFFALSE(c.frame.getBreakLabel(), c.frame)) # if condition false, go out loop
+
+        # loop body
+        local = deepcopy(c)
+        local.frame = c.frame
+        for vardecl in ast.sl[0]:
+            local.sym.append(self.visit(vardecl, local))
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
+
+        for stmt in ast.sl[1]:
+            self.visit(stmt, local)
+
+        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+
+        # go to begin of loop
+        self.emit.printout(self.emit.emitGOTO(c.frame.getContinueLabel(), c.frame))
+        # emit end loop label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
+
+        c.frame.exitLoop()
+        c.frame.exitScope()
 
     def visitCallStmt(self,ast, c):
         for sym in c.sym:

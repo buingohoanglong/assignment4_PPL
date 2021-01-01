@@ -4,10 +4,13 @@
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+.var 1 is x I from Label0 to Label1
 	bipush 6
 	istore_1
+.var 2 is y F from Label0 to Label1
 	ldc 5.5
 	fstore_2
+.var 3 is z I from Label0 to Label1
 	iconst_4
 	istore_3
 Label0:

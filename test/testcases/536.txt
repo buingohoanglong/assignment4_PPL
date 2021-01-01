@@ -1,0 +1,11 @@
+Function: main
+                   Body: 
+                        Var: x = 0;
+                        While (x < 10) Do
+                            If (x == 5) Then
+                                Break;
+                            EndIf.
+                            print(string_of_int(x));
+                            x = x + 1;
+                        EndWhile.
+                   EndBody.

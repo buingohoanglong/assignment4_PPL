@@ -4,6 +4,7 @@
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+.var 1 is x I from Label0 to Label1
 	iconst_5
 	istore_1
 Label0:
@@ -18,6 +19,7 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label2
+.var 2 is y I from Label8 to Label9
 	iconst_0
 	istore_2
 Label8:
@@ -37,6 +39,7 @@ Label10:
 	iconst_0
 Label11:
 	ifle Label3
+.var 2 is y I from Label12 to Label13
 	iconst_1
 	istore_2
 Label12:
@@ -56,6 +59,7 @@ Label14:
 	iconst_0
 Label15:
 	ifle Label4
+.var 2 is y I from Label16 to Label17
 	iconst_2
 	istore_2
 Label16:
@@ -64,6 +68,7 @@ Label16:
 Label17:
 	goto Label5
 Label4:
+.var 2 is y I from Label18 to Label19
 	iconst_3
 	istore_2
 Label18:

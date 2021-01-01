@@ -393,3 +393,129 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "1"
         self.assertTrue(TestCodeGen.test(input,expect,531))
+
+    # test while
+    def test_while_1(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 5, y = 3;
+                        While (y > 0) Do
+                            x = x + 1;
+                            y = y - 1;
+                        EndWhile.
+                        print(string_of_int(x));
+                        print(string_of_int(y));
+                   EndBody."""
+        expect = "80"
+        self.assertTrue(TestCodeGen.test(input,expect,532))  
+
+    def test_while_2(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 5, y = 3;
+                        While (y > 0) Do
+                            x = x + y;
+                            y = y - 1;
+                        EndWhile.
+                        printStrLn(string_of_int(x));
+                        print(string_of_int(y));
+                   EndBody."""
+        expect = "11\n0"
+        self.assertTrue(TestCodeGen.test(input,expect,533))
+
+    # test dowhile
+    def test_dowhile_1(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 5, y = 3;
+                        Do
+                            x = x + 1;
+                            y = y - 1;
+                        While (y > 0)
+                        EndDo.
+                        print(string_of_int(x));
+                        print(string_of_int(y));
+                   EndBody."""
+        expect = "80"
+        self.assertTrue(TestCodeGen.test(input,expect,534))  
+
+    def test_dowhile_2(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 5, y = 3;
+                        Do
+                            x = x + y;
+                            y = y - 1;
+                        While (y > 0)
+                        EndDo.
+                        printStrLn(string_of_int(x));
+                        print(string_of_int(y));
+                   EndBody."""
+        expect = "11\n0"
+        self.assertTrue(TestCodeGen.test(input,expect,535))
+
+    # test break
+    def test_break_1(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 0;
+                        While (x < 10) Do
+                            If (x == 5) Then
+                                Break;
+                            EndIf.
+                            print(string_of_int(x));
+                            x = x + 1;
+                        EndWhile.
+                   EndBody."""
+        expect = "01234"
+        self.assertTrue(TestCodeGen.test(input,expect,536))
+
+    # test continue
+    def test_continue_1(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 0;
+                        While (x < 10) Do
+                            If (x % 2 == 0) Then
+                                x = x + 1;
+                                Continue;
+                            EndIf.
+                            print(string_of_int(x));
+                            x = x + 1;
+                        EndWhile.
+                   EndBody."""
+        expect = "13579"
+        self.assertTrue(TestCodeGen.test(input,expect,537))
+
+    # test for
+    def test_for_1(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 0;
+                        For (x = 1, x <= 5, 1) Do
+                            print(string_of_int(x));
+                        EndFor.
+                   EndBody."""
+        expect = "12345"
+        self.assertTrue(TestCodeGen.test(input,expect,538))
+
+    def test_for_2(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x = 0;
+                        For (x = 1, x <= 10, 1) Do
+                            If (x % 2 == 0) Then
+                                printStrLn(string_of_int(x));
+                            EndIf.
+                        EndFor.
+                   EndBody."""
+        expect = "2\n4\n6\n8\n10\n"
+        self.assertTrue(TestCodeGen.test(input,expect,539))
