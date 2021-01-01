@@ -1,0 +1,10 @@
+Function: main
+                   Body: 
+                        Var: x = 6;
+                        If (x % 2 == 0) Then
+                            x = 0;
+                        Else
+                            x = 1;
+                        EndIf.
+                        print(string_of_int(x));
+                   EndBody.

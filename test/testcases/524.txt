@@ -1,0 +1,6 @@
+Function: main
+                   Body: 
+                        Var: x = 6, y = 5.5, z = 4;
+                        x = int_of_float(y) + x - z;
+                        print(string_of_int(x));
+                   EndBody.
