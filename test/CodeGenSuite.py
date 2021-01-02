@@ -689,3 +689,19 @@ class CheckCodeGenSuite(unittest.TestCase):
                     EndBody."""
         expect = "Hello World"
         self.assertTrue(TestCodeGen.test(input,expect,549))
+
+    def test_return_5(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x = 5;
+                        print(string_of_bool(is_equal(x + 1, 6)));
+                    EndBody.
+                Function: is_equal
+                    Parameter: x, y
+                    Body:
+                        Return x == y;
+                    EndBody."""
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input,expect,550))
