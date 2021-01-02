@@ -790,3 +790,87 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "91113"
         self.assertTrue(TestCodeGen.test(input,expect,556))
+
+    def test_array_7(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {1.1,2.2,3.3};
+                        print(string_of_float(x[1]));
+                    EndBody."""
+        expect = "2.2"
+        self.assertTrue(TestCodeGen.test(input,expect,557))
+
+    def test_array_8(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {1.1,2.2,3.3};
+                        x = {4.4,5.5,6.6};
+                        print(string_of_float(x[1]));
+                    EndBody."""
+        expect = "5.5"
+        self.assertTrue(TestCodeGen.test(input,expect,558))
+
+    def test_array_9(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {1.1,2.2,3.3};
+                        x[1] = 4.4;
+                        print(string_of_float(x[1]));
+                    EndBody."""
+        expect = "4.4"
+        self.assertTrue(TestCodeGen.test(input,expect,559))
+
+    def test_array_10(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body: 
+                        Var: x[3] = {1.1,2.2,3.3}, i = 0;
+                        x[1] = x[0] +. x[2];
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_float(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "1.14.43.3"
+        self.assertTrue(TestCodeGen.test(input,expect,560))
+
+    def test_array_11(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[5] = {1.1,2.2,3.3,4.4,5.5};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 5, 1) Do
+                            x[i] = x[i] *. float_to_int(2) +. 1.0;
+                        EndFor.
+                        For (i = 0, i < 5, 1) Do
+                            print(string_of_float(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "3.25.47.69.812.0"
+        self.assertTrue(TestCodeGen.test(input,expect,561))
+
+    def test_array_12(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {1.1,2.2,3.3};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {4.4,5.5,6.6};
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = x[i] *. 2.0 +. 1.0;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_float(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "9.812.014.2"
+        self.assertTrue(TestCodeGen.test(input,expect,562))

@@ -81,6 +81,8 @@ class Emitter():
         
         if type(typ) is cgen.IntType:
             return self.emitPUSHICONST(in_, frame)
+        if type(typ) is cgen.FloatType:
+            return self.emitPUSHFCONST(in_, frame)
         elif type(typ) is cgen.StringType:
             frame.push()
             return self.jvm.emitLDC("\"" + in_ + "\"")
@@ -97,6 +99,8 @@ class Emitter():
         frame.pop()
         if type(in_) is cgen.IntType:
             return self.jvm.emitIALOAD()
+        elif type(in_) is cgen.FloatType:
+            return self.jvm.emitFALOAD()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.ClassType or type(in_) is cgen.StringType:
             return self.jvm.emitAALOAD()
         else:
@@ -112,6 +116,8 @@ class Emitter():
         frame.pop()
         if type(in_) is cgen.IntType:
             return self.jvm.emitIASTORE()
+        elif type(in_) is cgen.FloatType:
+            return self.jvm.emitFASTORE()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.StringType:   # or type(in_) is ClassType
             return self.jvm.emitAASTORE()
         else:
@@ -162,10 +168,11 @@ class Emitter():
         code_gen = ""
         code_gen += self.emitREADVAR(name, typ, var_index, frame)
         code_gen += index
-        frame.pop() # take address
-        frame.pop() # take index
-        frame.push() # push value
-        code_gen += self.jvm.emitIALOAD()
+        # frame.pop() # take address
+        # frame.pop() # take index
+        # frame.push() # push value
+        # code_gen += self.jvm.emitIALOAD()
+        code_gen += self.emitALOAD(typ.eleType, frame)
         return code_gen
         #frame.push()
         raise IllegalOperandException(name)
@@ -539,11 +546,16 @@ class Emitter():
     '''   generate code to initialize local array variables.
     *   @param in the list of symbol entries corresponding to local array variable.    
     '''
-    def emitINITARRAY(self, in_, frame):
+    def emitINITARRAY(self, in_, typ, frame):
         # in_: List[Symbol]
         code_gen = ""
         code_gen += self.emitPUSHICONST(len(in_), frame)
-        code_gen += self.jvm.emitNEWARRAY('int')
+        array_type = ''
+        if isinstance(typ, cgen.IntType):
+            array_type = 'int'
+        elif isinstance(typ, cgen.FloatType):
+            array_type = 'float'
+        code_gen += self.jvm.emitNEWARRAY(array_type)
         return code_gen
 
     '''   generate code to jump to label if the value on top of operand stack is true.<p>

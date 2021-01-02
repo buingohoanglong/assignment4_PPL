@@ -508,10 +508,11 @@ class CodeGenVisitor(BaseVisitor):
                         code_gen = ""
                         code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
                         code_gen += idx
-                        c.frame.pop() # take address
-                        c.frame.pop() # take index
-                        c.frame.push() # push value
-                        code_gen += self.emit.jvm.emitIALOAD()
+                        # c.frame.pop() # take address
+                        # c.frame.pop() # take index
+                        # c.frame.push() # push value
+                        # code_gen += self.emit.jvm.emitIALOAD()
+                        code_gen += self.emit.emitALOAD(sym.mtype.eleType, c.frame)
                         return (code_gen, sym.mtype.eleType)       
 
     def visitId(self,ast, c):
@@ -544,12 +545,11 @@ class CodeGenVisitor(BaseVisitor):
         array_type = self.type_inferrer.visitArrayLiteral(ast, c.sym)
         code_gen = ""
         # init array
-        code_gen += self.emit.emitINITARRAY(ast.value, c.frame)
+        code_gen += self.emit.emitINITARRAY(ast.value, array_type.eleType, c.frame)
         # init array element
         for literal, index in zip(ast.value, range(len(ast.value))):
-            if isinstance(literal, IntLiteral):
-                literal_code, literal_type = self.visitIntLiteral(literal, c)
-                code_gen += self.emit.emitINITARRAYELEMENT(index, literal_type, literal_code, c.frame)
+            literal_code, literal_type = self.visit(literal, c)
+            code_gen += self.emit.emitINITARRAYELEMENT(index, literal_type, literal_code, c.frame)
                 
         return (code_gen, array_type)
 

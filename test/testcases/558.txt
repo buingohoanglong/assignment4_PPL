@@ -1,0 +1,7 @@
+
+                Function: main
+                    Body:
+                        Var: x[3] = {1.1,2.2,3.3};
+                        x = {4.4,5.5,6.6};
+                        print(string_of_float(x[1]));
+                    EndBody.

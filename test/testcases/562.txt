@@ -1,0 +1,13 @@
+
+                Var: x[3] = {1.1,2.2,3.3};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {4.4,5.5,6.6};
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = x[i] *. 2.0 +. 1.0;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_float(x[i]));
+                        EndFor.
+                   EndBody.

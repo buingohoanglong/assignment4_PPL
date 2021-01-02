@@ -1,0 +1,12 @@
+
+                Var: x[5] = {1.1,2.2,3.3,4.4,5.5};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 5, 1) Do
+                            x[i] = x[i] *. float_to_int(2) +. 1.0;
+                        EndFor.
+                        For (i = 0, i < 5, 1) Do
+                            print(string_of_float(x[i]));
+                        EndFor.
+                   EndBody.
