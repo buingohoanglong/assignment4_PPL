@@ -874,3 +874,87 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "9.812.014.2"
         self.assertTrue(TestCodeGen.test(input,expect,562))
+
+    def test_array_13(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {True,False,True};
+                        print(string_of_bool(x[1]));
+                    EndBody."""
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input,expect,563))
+
+    def test_array_14(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {True,False,True};
+                        x = {False,True,False};
+                        print(string_of_bool(x[1]));
+                    EndBody."""
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input,expect,564))
+
+    def test_array_15(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {True,False,True};
+                        x[1] = True;
+                        print(string_of_bool(x[1]));
+                    EndBody."""
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input,expect,565))
+
+    def test_array_16(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body: 
+                        Var: x[3] = {True,False,True}, i = 0;
+                        x[1] = x[0] && x[2];
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_bool(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "truetruetrue"
+        self.assertTrue(TestCodeGen.test(input,expect,566))
+
+    def test_array_17(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {True, False, True};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = !x[i] || False;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_bool(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "falsetruefalse"
+        self.assertTrue(TestCodeGen.test(input,expect,567))
+
+    def test_array_18(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {True, False, True};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {False, True, False};
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = !x[i] && True;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_bool(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "truefalsetrue"
+        self.assertTrue(TestCodeGen.test(input,expect,568))

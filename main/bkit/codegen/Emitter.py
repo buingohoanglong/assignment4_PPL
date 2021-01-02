@@ -79,7 +79,7 @@ class Emitter():
         #typ: Type
         #frame: Frame
         
-        if type(typ) is cgen.IntType:
+        if type(typ) is cgen.IntType or type(typ) is cgen.BoolType:
             return self.emitPUSHICONST(in_, frame)
         if type(typ) is cgen.FloatType:
             return self.emitPUSHFCONST(in_, frame)
@@ -99,6 +99,8 @@ class Emitter():
         frame.pop()
         if type(in_) is cgen.IntType:
             return self.jvm.emitIALOAD()
+        elif type(in_) is cgen.BoolType:
+            return self.jvm.emitBALOAD()
         elif type(in_) is cgen.FloatType:
             return self.jvm.emitFALOAD()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.ClassType or type(in_) is cgen.StringType:
@@ -116,6 +118,8 @@ class Emitter():
         frame.pop()
         if type(in_) is cgen.IntType:
             return self.jvm.emitIASTORE()
+        if type(in_) is cgen.BoolType:
+            return self.jvm.emitBASTORE()
         elif type(in_) is cgen.FloatType:
             return self.jvm.emitFASTORE()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.StringType:   # or type(in_) is ClassType
@@ -148,7 +152,7 @@ class Emitter():
         #... -> ..., value
         
         frame.push()
-        if type(inType) is cgen.IntType:
+        if type(inType) is cgen.IntType or type(inType) is cgen.BoolType:
             return self.jvm.emitILOAD(index)
         elif type(inType) is cgen.FloatType:  # add this line
             return self.jvm.emitFLOAD(index)
@@ -190,7 +194,7 @@ class Emitter():
         
         frame.pop()
 
-        if type(inType) is cgen.IntType:
+        if type(inType) is cgen.IntType or type(inType) is cgen.BoolType:
             return self.jvm.emitISTORE(index)
         elif type(inType) is cgen.FloatType:  # add this line
             return self.jvm.emitFSTORE(index)
@@ -555,6 +559,8 @@ class Emitter():
             array_type = 'int'
         elif isinstance(typ, cgen.FloatType):
             array_type = 'float'
+        elif isinstance(typ, cgen.BoolType):
+            array_type = 'boolean'
         code_gen += self.jvm.emitNEWARRAY(array_type)
         return code_gen
 

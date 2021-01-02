@@ -1,0 +1,12 @@
+
+                Var: x[3] = {True, False, True};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = !x[i] || False;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_bool(x[i]));
+                        EndFor.
+                   EndBody.
