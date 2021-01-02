@@ -594,6 +594,9 @@ class Emitter():
         elif type(in_) is cgen.FloatType:
             frame.pop()
             return self.jvm.emitFRETURN()
+        elif type(in_) is cgen.StringType:
+            frame.pop()
+            return self.jvm.emitARETURN()        
         elif type(in_) is cgen.VoidType:
             return self.jvm.emitRETURN()
 

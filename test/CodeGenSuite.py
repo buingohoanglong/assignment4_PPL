@@ -641,22 +641,22 @@ class CheckCodeGenSuite(unittest.TestCase):
     def test_return_2(self):
         """Simple program: int main() {} """
         input = """
-                Function: foo
-                    Parameter: x, y
-                    Body:
-                        Return sum(x, y) + 1;
-                    EndBody.
                 Function: main
                     Body:
-                        Var: a = 1, b = 2;
-                        print(string_of_int(foo(a, b)));
+                        Var: a = 1.5, b = 2.0;
+                        print(string_of_float(foo(a, b)));
                     EndBody.
                 Function: sum
                     Parameter: x, y
                     Body:
-                        Return x + y;
+                        Return x +. y;
+                    EndBody.
+                Function: foo
+                    Parameter: x, y
+                    Body:
+                        Return sum(x, y);
                     EndBody."""
-        expect = "4"
+        expect = "3.5"
         self.assertTrue(TestCodeGen.test(input,expect,547))
 
     def test_return_3(self):
@@ -675,3 +675,17 @@ class CheckCodeGenSuite(unittest.TestCase):
                     EndBody."""
         expect = "3"
         self.assertTrue(TestCodeGen.test(input,expect,548))
+
+    def test_return_4(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        print(foo());
+                    EndBody.
+                Function: foo
+                    Body:
+                        Return "Hello World";
+                    EndBody."""
+        expect = "Hello World"
+        self.assertTrue(TestCodeGen.test(input,expect,549))
