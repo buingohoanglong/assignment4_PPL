@@ -147,7 +147,9 @@ class CodeGenVisitor(BaseVisitor):
         for decl in program.decl:
             if isinstance(decl, VarDecl):
                 variable = self.type_inferrer.symbol(decl.variable.name, c.sym)
-                self.push_value_on_stack(str(decl.varInit.value), variable.mtype, c.frame)
+                # self.push_value_on_stack(str(decl.varInit.value), variable.mtype, c.frame)
+                value_code, value_type = self.visit(decl.varInit, c)
+                self.emit.printout(value_code)
                 self.emit.printout(self.emit.emitPUTSTATIC(self.className + '/' + variable.name, variable.mtype, c.frame))
 
 
@@ -175,17 +177,16 @@ class CodeGenVisitor(BaseVisitor):
 
 
     def visitVarDecl(self,ast, c):
-        var_type = None
-        if isinstance(ast.varInit, IntLiteral):
-            var_type = IntType()
-        elif isinstance(ast.varInit, FloatLiteral):
-            var_type = FloatType()
-        elif isinstance(ast.varInit, BooleanLiteral):
-            var_type = IntType()
-        elif isinstance(ast.varInit, StringLiteral):
-            var_type = StringType()
-        elif isinstance(ast.varInit, ArrayLiteral):
-            pass
+        # if isinstance(ast.varInit, IntLiteral):
+        #     var_type = IntType()
+        # elif isinstance(ast.varInit, FloatLiteral):
+        #     var_type = FloatType()
+        # elif isinstance(ast.varInit, BooleanLiteral):
+        #     var_type = IntType()
+        # elif isinstance(ast.varInit, StringLiteral):
+        #     var_type = StringType()
+        # elif isinstance(ast.varInit, ArrayLiteral):
+        #     pass
 
         if c.frame == None: # global variable
             variable = self.type_inferrer.symbol(ast.variable.name, c.sym)
@@ -195,11 +196,20 @@ class CodeGenVisitor(BaseVisitor):
             # self.emit.printout(self.emit.emitPUTSTATIC(variable.name, variable.mtype, c.frame))
             # return Symbol(ast.variable.name, var_type, CName(self.className))
         else:   # local variable
+            var_type = self.type_inferrer.visit(ast.varInit, c.sym)
+            if isinstance(var_type, BoolType):
+                var_type = IntType()
             index = c.frame.getNewIndex()
-            self.emit.printout(self.emit.emitVAR(index, ast.variable.name, var_type, c.frame.getStartLabel(), c.frame.getEndLabel(), c.frame))
-            self.push_value_on_stack(str(ast.varInit.value), var_type, c.frame)
+            if not isinstance(var_type, ArrayType):
+                self.emit.printout(self.emit.emitVAR(index, ast.variable.name, var_type, c.frame.getStartLabel(), c.frame.getEndLabel(), c.frame))
+            # else:
+            #     self.emit.printout(self.emit.emitVAR(index, ast.arr.name, var_type, c.frame.getStartLabel(), c.frame.getEndLabel(), c.frame))
+            # self.push_value_on_stack(ast.varInit.value, var_type, c.frame)
+            value_code, value_type = self.visit(ast.varInit, c)
+            self.emit.printout(value_code)
             self.emit.printout(self.emit.emitWRITEVAR(ast.variable.name, var_type, index, c.frame))
             return Symbol(ast.variable.name, var_type, Index(index))
+            
 
 
     def visitFuncDecl(self,ast, c):
@@ -238,6 +248,10 @@ class CodeGenVisitor(BaseVisitor):
         # return Symbol(ast.name.name, MType([param.mtype for param in ast.param], VoidType()), CName(self.className))
 
     def visitAssign(self,ast, c):
+        if isinstance(ast.lhs, ArrayCell):
+            arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.name, c.sym)
+            idx, idx_type = self.visit(ast.lhs.idx[0], Access(c.frame, c.sym, False))
+            self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, idx , c.frame))
         rhs, rhs_type = self.visit(ast.rhs, Access(c.frame, c.sym, False))
         self.emit.printout(rhs)
         lhs, lhs_type = self.visit(ast.lhs, Access(c.frame, c.sym, True))
@@ -473,7 +487,23 @@ class CodeGenVisitor(BaseVisitor):
                 return (buffer, sym.mtype.rettype)
 
     def visitArrayCell(self,ast, c):
-        pass
+        for sym in c.sym:
+            if sym.name == ast.arr.name and not isinstance(sym.mtype, MType):
+                if c.isLeft:    # Id in lhs
+                    if isinstance(sym.value, Index):    # local variable
+                        # print(type(sym.mtype.eleType))
+                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype)
+                        # return (self.emit.emitWRITEVAR(sym.name, sym.mtype, sym.value.value, c.frame), sym.mtype)
+                        # idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
+                        # return (self.emit.emitWRITEVAR2(sym.name, sym.mtype.eleType, sym.value.value, idx , c.frame), sym.mtype.eleType)
+                    # elif isinstance(sym.value, CName):  # global variable
+                    #     return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
+                else:
+                    if isinstance(sym.value, Index):    # local variable
+                        idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
+                        return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx, c.frame), sym.mtype.eleType)
+                    # elif isinstance(sym.value, CName):  # global variable
+                    #     return (self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)       
 
     def visitId(self,ast, c):
         for sym in c.sym:
@@ -502,7 +532,17 @@ class CodeGenVisitor(BaseVisitor):
         return (self.emit.emitPUSHICONST(str(ast.value), c.frame), BoolType())
 
     def visitArrayLiteral(self,ast, c):
-        pass
+        array_type = self.type_inferrer.visitArrayLiteral(ast, c.sym)
+        code_gen = ""
+        # init array
+        code_gen += self.emit.emitINITARRAY(ast.value, c.frame)
+        # init array element
+        for literal, index in zip(ast.value, range(len(ast.value))):
+            if isinstance(literal, IntLiteral):
+                literal_code, literal_type = self.visitIntLiteral(literal, c)
+                code_gen += self.emit.emitINITARRAYELEMENT(index, literal_type, literal_code, c.frame)
+                
+        return (code_gen, array_type)
 
     def push_value_on_stack(self, value, value_type, frame):
         if isinstance(value_type, IntType) or isinstance(value_type, BoolType):
@@ -629,7 +669,7 @@ class Unknown(Type):
 # @dataclass
 # class ArrayType(Type):
 #     dimen:List[int]
-#     eletype: Type
+#     eleType: Type
 
 # @dataclass
 # class MType:
@@ -686,7 +726,7 @@ class TypeInferrer(BaseVisitor):
         idtype = Unknown() if not ast.varInit else self.visit(ast.varInit, c)
         if ast.varDimen != []:  # array type
             if idtype == Unknown():
-                idtype = ArrayType(deepcopy(ast.varDimen), Unknown())
+                idtype = ArrayType(Unknown(), deepcopy(ast.varDimen))
         c.append(Symbol(idname, idtype))
 
 
@@ -695,7 +735,7 @@ class TypeInferrer(BaseVisitor):
         param_envir = []
         for param in ast.param:
             paramname = param.variable.name
-            paramtype = Unknown() if param.varDimen == [] else ArrayType(deepcopy(param.varDimen), Unknown())
+            paramtype = Unknown() if param.varDimen == [] else ArrayType(Unknown(), deepcopy(param.varDimen))
             param_envir.append(Symbol(paramname, paramtype))
       
         # update param of this function from outer environment
@@ -1050,7 +1090,7 @@ class TypeInferrer(BaseVisitor):
         return self.symbol(ast.method.name, c).mtype.rettype
 
     # check Undeclare, check index
-    # return innermost eletype
+    # return innermost eleType
     def visitArrayCell(self,ast, c):
         for i in range(len(ast.idx)):
             index = ast.idx[i]
@@ -1059,7 +1099,7 @@ class TypeInferrer(BaseVisitor):
                 indextype = IntType()
                 self.direct_infer(e=index, inferred_type=indextype, c=c)
 
-        return self.visit(ast.arr, c).eletype
+        return self.visit(ast.arr, c).eleType
 
 
     def visitId(self,ast, c):
@@ -1079,7 +1119,7 @@ class TypeInferrer(BaseVisitor):
         return BoolType()
 
     def visitArrayLiteral(self,ast, c):
-        eletype = Unknown()
+        eleType = Unknown()
         dimen = [len(ast.value)]
         innertype = Unknown()
         innerdimen = []
@@ -1087,12 +1127,12 @@ class TypeInferrer(BaseVisitor):
             inner_ele_type = self.visit(ele, c)
             innertype = inner_ele_type
             if isinstance(ele, ArrayLiteral):
-                eletype = innertype.eletype
+                eleType = innertype.eleType
                 innerdimen = innertype.dimen
             else:
-                eletype = innertype
+                eleType = innertype
         dimen += innerdimen
-        return ArrayType(dimen, eletype)
+        return ArrayType(eleType, dimen)
 
     
     # Support methods
@@ -1119,10 +1159,10 @@ class TypeInferrer(BaseVisitor):
             type2 = type1
         elif type1 != Unknown() and type2 != Unknown():
             if isinstance(type1, ArrayType) and isinstance(type2, ArrayType):
-                if type1.eletype == Unknown() and type2.eletype != Unknown():
-                    type1.eletype = type2.eletype
-                elif type1.eletype != Unknown() and type2.eletype == Unknown():
-                    type2.eletype = type1.eletype
+                if type1.eleType == Unknown() and type2.eleType != Unknown():
+                    type1.eleType = type2.eleType
+                elif type1.eleType != Unknown() and type2.eleType == Unknown():
+                    type2.eleType = type1.eleType
         
         return (type1, type2)
 
@@ -1134,6 +1174,6 @@ class TypeInferrer(BaseVisitor):
             self.symbol(e.method.name, c).mtype.rettype = inferred_type
         elif isinstance(e, ArrayCell):
             if isinstance(e.arr, Id):
-                self.symbol(e.arr.name, c).mtype.eletype = inferred_type
+                self.symbol(e.arr.name, c).mtype.eleType = inferred_type
             elif isinstance(e.arr, CallExpr):
-                self.symbol(e.arr.method.name, c).mtype.rettype.eletype = inferred_type  
+                self.symbol(e.arr.method.name, c).mtype.rettype.eleType = inferred_type  

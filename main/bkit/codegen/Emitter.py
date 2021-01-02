@@ -112,7 +112,7 @@ class Emitter():
         frame.pop()
         if type(in_) is cgen.IntType:
             return self.jvm.emitIASTORE()
-        elif type(in_) is cgen.ArrayType or type(in_) is ClassType or type(in_) is cgen.StringType:
+        elif type(in_) is cgen.ArrayType or type(in_) is cgen.StringType:   # or type(in_) is ClassType
             return self.jvm.emitAASTORE()
         else:
             raise IllegalOperandException(str(in_))
@@ -154,12 +154,19 @@ class Emitter():
     ''' generate the second instruction for array cell access
     *
     '''
-    def emitREADVAR2(self, name, typ, frame):
+    def emitREADVAR2(self, name, typ, var_index, index, frame):
         #name: String
         #typ: Type
         #frame: Frame
         #... -> ..., value
-
+        code_gen = ""
+        code_gen += self.emitREADVAR(name, typ, var_index, frame)
+        code_gen += index
+        frame.pop() # take address
+        frame.pop() # take index
+        frame.push() # push value
+        code_gen += self.jvm.emitIALOAD()
+        return code_gen
         #frame.push()
         raise IllegalOperandException(name)
 
@@ -188,11 +195,19 @@ class Emitter():
     ''' generate the second instruction for array cell access
     *
     '''
-    def emitWRITEVAR2(self, name, typ, frame):
+    def emitWRITEVAR2(self, name, typ, var_index, index, frame):
         #name: String
         #typ: Type
         #frame: Frame
         #..., value -> ...
+        code_gen = ""
+        frame.push()
+        code_gen += self.jvm.emitALOAD(var_index)
+        code_gen += index
+        # code_gen += value_code
+        # code_gen += self.emitASTORE(typ, frame)
+        return code_gen
+
 
         #frame.push()
         raise IllegalOperandException(name)
@@ -509,10 +524,27 @@ class Emitter():
     *   @param index the index of the local variable.
     *   @param in the type of the local array variable.
     '''
+    def emitINITARRAYELEMENT(self, index, in_, literal_code, frame):
+        # index: Int
+        # in_: Type
+        # literal: Literal
+        code_gen = ""
+        code_gen += self.emitDUP(frame)
+        code_gen += self.emitPUSHICONST(index, frame)
+        code_gen += literal_code
+        code_gen += self.emitASTORE(in_, frame)
+        return code_gen
+
 
     '''   generate code to initialize local array variables.
     *   @param in the list of symbol entries corresponding to local array variable.    
     '''
+    def emitINITARRAY(self, in_, frame):
+        # in_: List[Symbol]
+        code_gen = ""
+        code_gen += self.emitPUSHICONST(len(in_), frame)
+        code_gen += self.jvm.emitNEWARRAY('int')
+        return code_gen
 
     '''   generate code to jump to label if the value on top of operand stack is true.<p>
     *   ifgt label
