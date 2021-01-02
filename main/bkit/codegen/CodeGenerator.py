@@ -250,8 +250,13 @@ class CodeGenVisitor(BaseVisitor):
     def visitAssign(self,ast, c):
         if isinstance(ast.lhs, ArrayCell):
             arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.name, c.sym)
+            if isinstance(arraycell_sym.value, Index): # local 
+                self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, c.frame))
+            else: # global
+                self.emit.printout(self.emit.emitGETSTATIC(self.className + '/' + arraycell_sym.name, arraycell_sym.mtype, c.frame))
             idx, idx_type = self.visit(ast.lhs.idx[0], Access(c.frame, c.sym, False))
-            self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, idx , c.frame))
+            self.emit.printout(idx)
+
         rhs, rhs_type = self.visit(ast.rhs, Access(c.frame, c.sym, False))
         self.emit.printout(rhs)
         lhs, lhs_type = self.visit(ast.lhs, Access(c.frame, c.sym, True))
@@ -342,7 +347,7 @@ class CodeGenVisitor(BaseVisitor):
 
         # update
         exp3, type3 = self.visit(ast.expr3, Access(c.frame, c.sym, False))  # load exp3
-        self.emit.printout(exp1)
+        self.emit.printout(exp3)
         idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, False)) # load idx
         self.emit.printout(idx)
         self.emit.printout(self.emit.emitADDOP('+', IntType(), c.frame))    # add
@@ -491,19 +496,23 @@ class CodeGenVisitor(BaseVisitor):
             if sym.name == ast.arr.name and not isinstance(sym.mtype, MType):
                 if c.isLeft:    # Id in lhs
                     if isinstance(sym.value, Index):    # local variable
-                        # print(type(sym.mtype.eleType))
-                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype)
-                        # return (self.emit.emitWRITEVAR(sym.name, sym.mtype, sym.value.value, c.frame), sym.mtype)
-                        # idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
-                        # return (self.emit.emitWRITEVAR2(sym.name, sym.mtype.eleType, sym.value.value, idx , c.frame), sym.mtype.eleType)
-                    # elif isinstance(sym.value, CName):  # global variable
-                    #     return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
+                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
+                    elif isinstance(sym.value, CName):  # global variable
+                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
+                        # return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
                 else:
+                    idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
                     if isinstance(sym.value, Index):    # local variable
-                        idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
                         return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx, c.frame), sym.mtype.eleType)
-                    # elif isinstance(sym.value, CName):  # global variable
-                    #     return (self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)       
+                    elif isinstance(sym.value, CName):  # global variable
+                        code_gen = ""
+                        code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
+                        code_gen += idx
+                        c.frame.pop() # take address
+                        c.frame.pop() # take index
+                        c.frame.push() # push value
+                        code_gen += self.emit.jvm.emitIALOAD()
+                        return (code_gen, sym.mtype.eleType)       
 
     def visitId(self,ast, c):
         for sym in c.sym:

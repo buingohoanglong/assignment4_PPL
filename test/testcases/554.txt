@@ -1,0 +1,9 @@
+
+                Function: main
+                   Body: 
+                        Var: x[3] = {1,2,3}, i = 0;
+                        x[1] = x[0] + x[2];
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody.

@@ -741,3 +741,52 @@ class CheckCodeGenSuite(unittest.TestCase):
                     EndBody."""
         expect = "4"
         self.assertTrue(TestCodeGen.test(input,expect,553))
+
+    def test_array_4(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body: 
+                        Var: x[3] = {1,2,3}, i = 0;
+                        x[1] = x[0] + x[2];
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "143"
+        self.assertTrue(TestCodeGen.test(input,expect,554))
+
+    def test_array_5(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[5] = {1,2,3,4,5};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 5, 1) Do
+                            x[i] = x[i] * 2 + 1;
+                        EndFor.
+                        For (i = 0, i < 5, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "357911"
+        self.assertTrue(TestCodeGen.test(input,expect,555))
+
+    def test_array_6(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {1,2,3};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {4,5,6};
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = x[i] * 2 + 1;
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "91113"
+        self.assertTrue(TestCodeGen.test(input,expect,556))

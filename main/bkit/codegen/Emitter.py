@@ -195,15 +195,15 @@ class Emitter():
     ''' generate the second instruction for array cell access
     *
     '''
-    def emitWRITEVAR2(self, name, typ, var_index, index, frame):
+    def emitWRITEVAR2(self, name, typ, index, frame):
         #name: String
         #typ: Type
         #frame: Frame
         #..., value -> ...
         code_gen = ""
         frame.push()
-        code_gen += self.jvm.emitALOAD(var_index)
-        code_gen += index
+        code_gen += self.jvm.emitALOAD(index)
+        # code_gen += index
         # code_gen += value_code
         # code_gen += self.emitASTORE(typ, frame)
         return code_gen
