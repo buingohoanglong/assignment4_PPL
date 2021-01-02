@@ -83,7 +83,7 @@ class Emitter():
             return self.emitPUSHICONST(in_, frame)
         elif type(typ) is cgen.StringType:
             frame.push()
-            return self.jvm.emitLDC(in_)
+            return self.jvm.emitLDC("\"" + in_ + "\"")
         else:
             raise IllegalOperandException(in_)
 
@@ -208,7 +208,7 @@ class Emitter():
         #isFinal: Boolean
         #value: String
 
-        return self.jvm.emitSTATICFIELD(lexeme, self.getJVMType(in_), false)
+        return self.jvm.emitSTATICFIELD(lexeme, self.getJVMType(in_), False)
 
     def emitGETSTATIC(self, lexeme, in_, frame):
         #lexeme: String
@@ -591,6 +591,9 @@ class Emitter():
         if type(in_) is cgen.IntType:
             frame.pop()
             return self.jvm.emitIRETURN()
+        elif type(in_) is cgen.FloatType:
+            frame.pop()
+            return self.jvm.emitFRETURN()
         elif type(in_) is cgen.VoidType:
             return self.jvm.emitRETURN()
 

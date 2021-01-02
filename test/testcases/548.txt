@@ -1,0 +1,12 @@
+
+                Function: main
+                    Body:
+                        Var: a = 1, b = 2;
+                        foo(a, b);
+                    EndBody.
+                Function: foo
+                    Parameter: x, y
+                    Body:
+                        print(string_of_int(x + y));
+                        Return;
+                    EndBody.

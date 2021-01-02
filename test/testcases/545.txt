@@ -1,0 +1,11 @@
+
+                Var: x = "Hello World";
+                Function: main
+                    Body:
+                        foo();
+                        print(x);
+                    EndBody.
+                Function: foo
+                    Body:
+                        x = "My name is Long";
+                    EndBody.

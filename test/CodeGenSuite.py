@@ -519,3 +519,159 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "2\n4\n6\n8\n10\n"
         self.assertTrue(TestCodeGen.test(input,expect,539))
+
+    # test funcdecl
+    def test_funcdecl_1(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: foo
+                Body:
+                    print(string_of_int(1));
+                EndBody.
+                Function: main
+                   Body: 
+                        foo();
+                   EndBody."""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input,expect,540))
+
+    def test_funcdecl_2(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: foo
+                Parameter: x
+                Body:
+                    print(string_of_int(x));
+                EndBody.
+                Function: main
+                   Body: 
+                        foo(1);
+                   EndBody."""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input,expect,541))
+
+    def test_funcdecl_3(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x = 0;
+                Function: foo
+                    Body:
+                        x = 1;
+                    EndBody.
+                Function: main
+                    Body: 
+                        foo();
+                        print(string_of_int(x));
+                    EndBody."""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input,expect,542))
+
+    def test_funcdecl_4(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x = 0;
+                Function: main
+                    Body: 
+                        foo();
+                        print(string_of_int(x));
+                    EndBody.
+                Function: foo
+                    Body:
+                        x = 1;
+                    EndBody."""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input,expect,543))
+
+    def test_funcdecl_5(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x = 0;
+                Function: goo
+                    Body:
+                        print(string_of_int(x));
+                        x = 2;
+                    EndBody.
+                Function: main
+                    Body: 
+                        foo();
+                        print(string_of_int(x));
+                    EndBody.
+                Function: foo
+                    Body:
+                        print(string_of_int(x));
+                        x = 1;
+                        goo();
+                    EndBody."""
+        expect = "012"
+        self.assertTrue(TestCodeGen.test(input,expect,544))
+
+    def test_funcdecl_6(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x = "Hello World";
+                Function: main
+                    Body:
+                        foo();
+                        print(x);
+                    EndBody.
+                Function: foo
+                    Body:
+                        x = "My name is Long";
+                    EndBody."""
+        expect = "My name is Long"
+        self.assertTrue(TestCodeGen.test(input,expect,545))
+
+    # test return
+    def test_return_1(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: a = 1, b = 2;
+                        print(string_of_int(sum(a, b)));
+                    EndBody.
+                Function: sum
+                    Parameter: x, y
+                    Body:
+                        Return x + y;
+                    EndBody."""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input,expect,546))
+
+    def test_return_2(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: foo
+                    Parameter: x, y
+                    Body:
+                        Return sum(x, y) + 1;
+                    EndBody.
+                Function: main
+                    Body:
+                        Var: a = 1, b = 2;
+                        print(string_of_int(foo(a, b)));
+                    EndBody.
+                Function: sum
+                    Parameter: x, y
+                    Body:
+                        Return x + y;
+                    EndBody."""
+        expect = "4"
+        self.assertTrue(TestCodeGen.test(input,expect,547))
+
+    def test_return_3(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: a = 1, b = 2;
+                        foo(a, b);
+                    EndBody.
+                Function: foo
+                    Parameter: x, y
+                    Body:
+                        print(string_of_int(x + y));
+                        Return;
+                    EndBody."""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input,expect,548))

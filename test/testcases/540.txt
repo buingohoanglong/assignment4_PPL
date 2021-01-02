@@ -1,0 +1,9 @@
+
+                Function: foo
+                Body:
+                    print(string_of_int(1));
+                EndBody.
+                Function: main
+                   Body: 
+                        foo();
+                   EndBody.

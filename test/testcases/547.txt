@@ -1,0 +1,16 @@
+
+                Function: foo
+                    Parameter: x, y
+                    Body:
+                        Return sum(x, y) + 1;
+                    EndBody.
+                Function: main
+                    Body:
+                        Var: a = 1, b = 2;
+                        print(string_of_int(foo(a, b)));
+                    EndBody.
+                Function: sum
+                    Parameter: x, y
+                    Body:
+                        Return x + y;
+                    EndBody.
