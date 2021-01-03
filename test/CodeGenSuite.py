@@ -1098,3 +1098,473 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "0112"
         self.assertTrue(TestCodeGen.test(input,expect,578))
+
+    def test_array_29(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[2][2][3] = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                Function: main
+                   Body: 
+                        Var: i = 0, j = 0, k = 0, sum = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    x[i][j][k] = x[i][j][k] * 2;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    sum = sum + x[i][j][k];
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        print(string_of_int(sum));
+                   EndBody."""
+        expect = "156"
+        self.assertTrue(TestCodeGen.test(input,expect,579))
+
+    def test_array_30(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: x[2][2][3] = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}}; 
+                        Var: i = 0, j = 0, k = 0, sum = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    x[i][j][k] = x[i][j][k] * 2 + 1;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    sum = sum + x[i][j][k];
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        print(string_of_int(sum));
+                   EndBody."""
+        expect = "168"
+        self.assertTrue(TestCodeGen.test(input,expect,580))
+
+    # test return
+    def test_return_6(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: i = 0, j = 0, k = 0;
+                        Var: x[2][2][3] = {{{12,11,10},{9,8,7}},{{6,5,4},{3,2,1}}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        printLn();
+                        x = foo();
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                   EndBody.
+                Function: foo
+                    Body:
+                        Return {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                    EndBody."""
+        expect = "121110987654321\n123456789101112"
+        self.assertTrue(TestCodeGen.test(input,expect,581))
+
+    def test_return_7(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: i = 0, j = 0, k = 0;
+                        Var: x[2][2][3] = {{{12,11,10},{9,8,7}},{{6,5,4},{3,2,1}}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        printLn();
+                        x = foo();
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                   EndBody.
+                Function: foo
+                    Body:
+                        Var: x[2][2][3] = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                        Return x;
+                    EndBody."""
+        expect = "121110987654321\n123456789101112"
+        self.assertTrue(TestCodeGen.test(input,expect,582))
+
+    # test funccall
+    def test_funccall_1(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: i = 0, j = 0, k = 0;
+                        Var: x[2][2][3] = {{{12,11,10},{9,8,7}},{{6,5,4},{3,2,1}}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        printLn();
+                        foo(x);
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                   EndBody.
+                Function: foo
+                    Parameter: y[2][2][3]
+                    Body:
+                        Var: i = 0, j = 0, k = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    y[i][j][k] = i + j + k;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                    EndBody."""
+        expect = "121110987654321\n012123123234"
+        self.assertTrue(TestCodeGen.test(input,expect,583))
+
+    def test_funccall_2(self):  # ????????????????????????????????
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: i = 0, j = 0, k = 0;
+                        Var: x[2][2][3] = {{{12,11,10},{9,8,7}},{{6,5,4},{3,2,1}}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        printLn();
+                        foo(x);
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                   EndBody.
+                Function: foo
+                    Parameter: x[2][2][3]
+                    Body:
+                        Var: y = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                        Var: i = 0, j = 0, k = 0;
+                        y = x;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    y[i][j][k] = i + j + k;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                    EndBody."""
+        expect = "121110987654321\n012123123234"
+        self.assertTrue(TestCodeGen.test(input,expect,584))
+
+    def test_funccall_3(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: x = 5, y = 6;
+                        no_swap(x,y);
+                        print(string_of_int(x));
+                        print(string_of_int(y));
+                   EndBody.
+                Function: no_swap
+                    Parameter: x, y
+                    Body:
+                        Var: temp = 0;
+                        temp = x;
+                        x = y;
+                        y = temp;
+                    EndBody."""
+        expect = "56"
+        self.assertTrue(TestCodeGen.test(input,expect,585))
+
+    # test assign
+    def test_assign_4(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: x = "Hello", y = "World";
+                        y = x;
+                        print(x);
+                        print(y);
+                   EndBody."""
+        expect = "HelloHello"
+        self.assertTrue(TestCodeGen.test(input,expect,586))
+
+    def test_assign_5(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                   Body:
+                        Var: x = {1,2,3}, y = {4,5,6}, i = 0;
+                        y = x;
+                        x[1] = 10;
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                        printLn();
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody."""
+        expect = "1103\n1103"
+        self.assertTrue(TestCodeGen.test(input,expect,587))
+
+    # test full program
+    def test_full_program_1(self):
+        input = """
+        Var: arr[4] = {"This", "is", "a", "testcase"};
+        ** This
+        * is
+        * a
+        * block
+        * comment ** 
+        Function: printSth
+            Parameter: arr[4]
+            Body:
+                Var : count = 0;
+                While count < 4 Do
+                    If (count % 2 == 0) Then
+                        printStrLn("Skip");
+                        count = count + 1;
+                        Continue;
+                    EndIf.
+                    print(arr[count]);
+                    count = count + 1;
+                EndWhile.
+                Return;
+            EndBody.
+
+        Function: main
+            Body:
+                printSth(arr);
+                Return;
+            EndBody."""
+        expect = "Skip\nisSkip\ntestcase"
+        self.assertTrue(TestCodeGen.test(input,expect,588))
+
+    def test_full_program_2(self):
+        input = """
+        ** This is a global variable **
+        Var: arr[5] = {5,   7, 1,2, 6};
+
+        ** Sort function **
+        Function: sort
+            Parameter: arr[5]
+            Body:
+                Var: i = 50;
+                For (i = 0, i < 5, 1) Do
+                    Var: j = 3;
+                    For (j = i + 1, j < 5, 1) Do
+                        If arr[i] < arr[j] Then
+                            Var: temp = 0;
+                            temp = arr[i];
+                            arr[i] = arr[j];
+                            arr[j] = temp;
+                        EndIf.
+                    EndFor.
+                EndFor.
+                Return arr;
+            EndBody.
+
+        ** Entry of program **
+        Function: main
+            Body:
+                Var: i = 100;
+                For (i = 0, i < 5, 1) Do
+                    print(string_of_int(arr[i]));
+                EndFor.
+                printLn();
+                arr = sort(arr);
+                For (i = 0, i < 5, 1) Do
+                    print(string_of_int(arr[i]));
+                EndFor.
+            EndBody."""
+        expect = "57126\n76521"
+        self.assertTrue(TestCodeGen.test(input,expect,589))
+
+    def test_full_program_3(self):
+        input = """
+        Function: sqrt
+            Parameter: x
+            Body:
+                Return 1.1;
+            EndBody.
+        Function: radius
+            Parameter: x, y
+            Body:
+                Var: radius = 5.5;
+                radius = sqrt(x*.x +. y*.y);
+                Return radius;
+            EndBody.
+        Function: main
+            Body:
+                Var : x = 3.5e0, y = 4.6e-0;
+                printStrLn(string_of_float(radius(x, y)));
+                Return;
+            EndBody."""
+        expect = "1.1\n"
+        self.assertTrue(TestCodeGen.test(input,expect,590))
+
+    def test_full_program_4(self):
+        input = """Var: x[5] = {1,2,3,4,5};
+        Function: sum
+            Parameter: x[5]
+                Body:
+                    Var: sum = 0, i = 0;
+                    For (i = 0 , i < 5, 1) Do
+                        sum = sum + x[i];
+                    EndFor.
+                    Return sum;
+                EndBody.
+        Function: main
+            Body:
+                Var: y = 0;
+                y = sum(x);
+                print(string_of_int(y));
+                Return;
+            EndBody."""
+        expect = "15"
+        self.assertTrue(TestCodeGen.test(input,expect,591))
+
+    # def test_full_program_5(self):
+    #     input = """Var: x = 5;
+    #     Function: fact
+    #         Parameter: n
+    #             Body:
+    #                 If n == 0 Then
+    #                     Return 1;
+    #                 Else
+    #                     Return n * fact (n - 1);
+    #                 EndIf.
+    #             EndBody.
+    #     Function: main
+    #         Body:
+    #             x = 10;
+    #             print(string_of_int(fact(x)));
+    #             Return;
+    #         EndBody."""
+    #     expect = "3628800"
+    #     self.assertTrue(TestCodeGen.test(input,expect,592))
+
+    # def test_full_program_7(self):
+    #     input = """           
+    #     Function: main
+    #         Body:
+    #             Var: a[3][2] = {{1,2},{3,4},{5,6}}, i = 0;
+    #             While i < 3 Do
+    #                 Var: j = 0;
+    #                 If i < j Then
+    #                     Continue;
+    #                 EndIf.
+    #                 While (j < 2) Do
+    #                     printStrLn(string_of_int(a[i][j]));
+    #                     j =  j + 1;
+    #                     If j == 3 Then
+    #                         Continue;
+    #                     EndIf.
+    #                 EndWhile.
+    #                 i = i + 1;           
+    #             EndWhile.
+    #             Return;
+    #         EndBody."""
+    #     expect = str("")
+    #     self.assertTrue(TestChecker.test(input,expect,496))
+
+    # def test_full_program_8(self):
+    #     input = """
+    #     Function: foo
+    #         Parameter: a[2]
+    #         Body:
+    #             Var: x[3], y;
+    #             a[y] = x[a[x[a[x[y]]]]] + foo(a);
+    #             Return y;
+    #         EndBody.
+    #     Function: main
+    #         Body:
+    #             printStrLn(string_of_int(foo({1,2})));
+    #             Return;
+    #         EndBody."""
+    #     expect = str("")
+    #     self.assertTrue(TestChecker.test(input,expect,497))
+
+    # def test_full_program_9(self):
+    #     input = """
+    #     Function: sum
+    #         Parameter: x,y
+    #         Body:
+    #             Return x + y;
+    #         EndBody.
+    #     Function: power
+    #         Parameter: x,y
+    #         Body:
+    #             Var: result = 1, i;
+    #             For (i = 1, i <= y, 1) Do
+    #                 result = result * x;
+    #             EndFor.
+    #             Return result;
+    #         EndBody.
+    #     Function: sqrt
+    #         Parameter: x
+    #         Body:
+    #             Return 1;
+    #         EndBody.            
+    #     Function: main
+    #         Body:
+    #             Var: a[5], x, y;
+    #             a[x * y - sum(x,y)] = a[sum(x,y) * 2 + a[x*y] - sqrt(power(x,2))] * sqrt(power(x+y,x*y) + power(x,y));
+    #             Return;
+    #         EndBody."""
+    #     expect = str("")
+    #     self.assertTrue(TestChecker.test(input,expect,498))
+
+    # def test_full_program_10(self):
+    #     input = """           
+    #     Function: main
+    #         Body:
+    #             Var: a[3][2] = {{1,2}, {3,4}, {5,6}}, x, y;
+    #             a[a[x+y][x-y]][a[x*y][x\y]] = 1;
+    #             Return;
+    #         EndBody."""
+    #     expect = str("")
+    #     self.assertTrue(TestChecker.test(input,expect,499))

@@ -1,0 +1,34 @@
+
+                Function: main
+                   Body:
+                        Var: i = 0, j = 0, k = 0;
+                        Var: x[2][2][3] = {{{12,11,10},{9,8,7}},{{6,5,4},{3,2,1}}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        printLn();
+                        foo(x);
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    print(string_of_int(x[i][j][k]));
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                   EndBody.
+                Function: foo
+                    Parameter: y[2][2][3]
+                    Body:
+                        Var: i = 0, j = 0, k = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    y[i][j][k] = i + j + k;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                    EndBody.

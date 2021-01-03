@@ -1,0 +1,21 @@
+
+                Var: x[2][2][3] = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                Function: main
+                   Body: 
+                        Var: i = 0, j = 0, k = 0, sum = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    x[i][j][k] = x[i][j][k] * 2;
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                For (k = 0, k < 3, 1) Do
+                                    sum = sum + x[i][j][k];
+                                EndFor.
+                            EndFor.
+                        EndFor.
+                        print(string_of_int(sum));
+                   EndBody.

@@ -134,8 +134,11 @@ class CodeGenVisitor(BaseVisitor):
 
     # The following code is just for initial, students should remove it and write your visitor from here
     def genMain(self, ast, c, program):
+        self.type_inferrer.visit(ast, c.sym)
+
         func_symbol = self.type_inferrer.symbol('main', c.sym)
         func_symbol.value = CName(self.className)
+        func_symbol.mtype.is_current_function = True
 
         c.frame = Frame(ast.name.name, VoidType())
         c.frame.enterScope(True)
@@ -174,20 +177,12 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitENDMETHOD(local.frame))
         c.frame.exitScope()
 
+        func_symbol.mtype.is_current_function = False
+
 
 
     def visitVarDecl(self,ast, c):
-        # if isinstance(ast.varInit, IntLiteral):
-        #     var_type = IntType()
-        # elif isinstance(ast.varInit, FloatLiteral):
-        #     var_type = FloatType()
-        # elif isinstance(ast.varInit, BooleanLiteral):
-        #     var_type = IntType()
-        # elif isinstance(ast.varInit, StringLiteral):
-        #     var_type = StringType()
-        # elif isinstance(ast.varInit, ArrayLiteral):
-        #     pass
-
+        # self.type_inferrer.visit(ast, c.sym)
         if c.frame == None: # global variable
             variable = self.type_inferrer.symbol(ast.variable.name, c.sym)
             variable.value = CName(self.className)
@@ -213,6 +208,8 @@ class CodeGenVisitor(BaseVisitor):
 
 
     def visitFuncDecl(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         func_symbol = self.type_inferrer.symbol(ast.name.name, c.sym)
         func_symbol.value = CName(self.className)
         func_symbol.mtype.is_current_function = True
@@ -248,6 +245,8 @@ class CodeGenVisitor(BaseVisitor):
         # return Symbol(ast.name.name, MType([param.mtype for param in ast.param], VoidType()), CName(self.className))
 
     def visitAssign(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         if isinstance(ast.lhs, ArrayCell):
             arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.name, c.sym)
             if isinstance(arraycell_sym.value, Index): # local 
@@ -266,6 +265,8 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(lhs)
 
     def visitIf(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         label_lst = [c.frame.getNewLabel() for i in range(len(ast.ifthenStmt) + 1)]
         for i in range(len(ast.ifthenStmt)):
             if i > 0:   # emit if/elif block label
@@ -320,6 +321,8 @@ class CodeGenVisitor(BaseVisitor):
 
 
     def visitFor(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         c.frame.enterScope(False)
         c.frame.enterLoop()
 
@@ -366,12 +369,18 @@ class CodeGenVisitor(BaseVisitor):
         c.frame.exitScope()
 
     def visitBreak(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         self.emit.printout(self.emit.emitGOTO(c.frame.getBreakLabel(), c.frame))
 
     def visitContinue(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         self.emit.printout(self.emit.emitGOTO(c.frame.getContinueLabel(), c.frame))
 
     def visitReturn(self,ast, c):
+        # self.type_inferrer.visit(ast, c.sym)
+
         current_function = None
         for sym in c.sym:
             if isinstance(sym.mtype, MType) and sym.mtype.is_current_function:
@@ -383,6 +392,8 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitRETURN(current_function.mtype.rettype, c.frame))
 
     def visitDowhile(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         c.frame.enterScope(False)
         c.frame.enterLoop()
         self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
@@ -412,6 +423,8 @@ class CodeGenVisitor(BaseVisitor):
         c.frame.exitScope()
 
     def visitWhile(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         c.frame.enterScope(False)
         c.frame.enterLoop()
         self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
@@ -443,19 +456,24 @@ class CodeGenVisitor(BaseVisitor):
         c.frame.exitScope()
 
     def visitCallStmt(self,ast, c):
-        for sym in c.sym:
-            if sym.name == ast.method.name and isinstance(sym.mtype, MType):
-                buffer = ""
-                params = []
-                for param in ast.param:
-                    paramcode, paramtype = self.visit(param, Access(c.frame, c.sym, False))
-                    buffer += paramcode
-                buffer += self.emit.emitINVOKESTATIC(sym.value.value + "/" + sym.name, sym.mtype, c.frame)
-                # print(buffer)
-                self.emit.printout(buffer)
-                
+        self.type_inferrer.visit(ast, c.sym)
+
+        # for sym in c.sym:
+        #     if sym.name == ast.method.name and isinstance(sym.mtype, MType):
+        sym = self.type_inferrer.symbol(ast.method.name, c.sym)
+        buffer = ""
+        params = []
+        for param in ast.param:
+            paramcode, paramtype = self.visit(param, Access(c.frame, c.sym, False))
+            buffer += paramcode
+        buffer += self.emit.emitINVOKESTATIC(sym.value.value + "/" + sym.name, sym.mtype, c.frame)
+        # print(buffer)
+        self.emit.printout(buffer)
+                        
 
     def visitBinaryOp(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
         right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
         if ast.op in ['+', '+.', '-', '-.']:
@@ -476,6 +494,8 @@ class CodeGenVisitor(BaseVisitor):
             return (left + right + self.emit.emitREOP('!=', ltype, c.frame), BoolType())
 
     def visitUnaryOp(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         body, bodytype = self.visit(ast.body, c)
         if ast.op in ['-', '-.']:
             return (body + self.emit.emitNEGOP(bodytype, c.frame), bodytype)
@@ -483,6 +503,8 @@ class CodeGenVisitor(BaseVisitor):
             return (body + self.emit.emitNOT(IntType(), c.frame), bodytype)
     
     def visitCallExpr(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         for sym in c.sym:
             if sym.name == ast.method.name and isinstance(sym.mtype, MType):
                 buffer = ""
@@ -495,6 +517,8 @@ class CodeGenVisitor(BaseVisitor):
                 return (buffer, sym.mtype.rettype)
 
     def visitArrayCell(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         for sym in c.sym:
             if sym.name == ast.arr.name and not isinstance(sym.mtype, MType):
                 if c.isLeft:    # Id in lhs
@@ -519,6 +543,8 @@ class CodeGenVisitor(BaseVisitor):
                         return (code_gen, sym.mtype.eleType)       
 
     def visitId(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         for sym in c.sym:
             if sym.name == ast.name and not isinstance(sym.mtype, MType):
                 if c.isLeft:    # Id in lhs
@@ -533,19 +559,27 @@ class CodeGenVisitor(BaseVisitor):
                         return (self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)   
 
     def visitIntLiteral(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         return (self.emit.emitPUSHICONST(str(ast.value), c.frame), IntType())
 
     def visitFloatLiteral(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         return (self.emit.emitPUSHFCONST(str(ast.value), c.frame), FloatType())
 
     def visitStringLiteral(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         return (self.emit.emitPUSHCONST(ast.value, StringType(), c.frame), StringType())
 
     def visitBooleanLiteral(self,ast, c):
+        self.type_inferrer.visit(ast, c.sym)
+
         return (self.emit.emitPUSHICONST(str(ast.value), c.frame), BoolType())
 
     def visitArrayLiteral(self,ast, c):
-        array_type = self.type_inferrer.visitArrayLiteral(ast, c.sym)
+        array_type = self.type_inferrer.visit(ast, c.sym)
         code_gen = ""
         # init array
         # print(array_type.dimen)
@@ -729,7 +763,7 @@ class TypeInferrer(BaseVisitor):
                 funcname = decl.name.name
                 partype_lst = []
                 for param in decl.param:
-                    paramtype = Unknown() if param.varDimen == [] else ArrayType(deepcopy(param.varDimen), Unknown())
+                    paramtype = Unknown() if param.varDimen == [] else ArrayType(Unknown(), deepcopy(param.varDimen))
                     partype_lst.append(paramtype)
                 c.append(Symbol(funcname, MType(partype_lst, Unknown()), CName(self.className)))
                 
@@ -1024,6 +1058,8 @@ class TypeInferrer(BaseVisitor):
             type1, type2 = self.mutual_infer(type1=type1, type2=type2)
             # param type update
             self.symbol(ast.method.name, c).mtype.partype[i] = type1
+            # if type(type1) is ArrayType:
+            #     print(type1.eleType)
             # argument type update 
             self.direct_infer(e=ast.param[i], inferred_type=type2, c=c)
 

@@ -1,0 +1,14 @@
+
+                Function: main
+                   Body:
+                        Var: x = {1,2,3}, y = {4,5,6}, i = 0;
+                        y = x;
+                        x[1] = 10;
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                        printLn();
+                        For (i = 0, i < 3, 1) Do
+                            print(string_of_int(x[i]));
+                        EndFor.
+                   EndBody.
