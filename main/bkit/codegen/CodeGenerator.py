@@ -254,8 +254,11 @@ class CodeGenVisitor(BaseVisitor):
                 self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, c.frame))
             else: # global
                 self.emit.printout(self.emit.emitGETSTATIC(self.className + '/' + arraycell_sym.name, arraycell_sym.mtype, c.frame))
-            idx, idx_type = self.visit(ast.lhs.idx[0], Access(c.frame, c.sym, False))
-            self.emit.printout(idx)
+            idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.lhs.idx]
+            for idx, i in zip(idx_lst, range(len(idx_lst))):
+                self.emit.printout(idx)
+                if i < len(idx_lst) - 1:
+                    self.emit.printout(self.emit.emitALOAD(arraycell_sym.mtype, c.frame))
 
         rhs, rhs_type = self.visit(ast.rhs, Access(c.frame, c.sym, False))
         self.emit.printout(rhs)

@@ -1036,3 +1036,27 @@ class CheckCodeGenSuite(unittest.TestCase):
                     EndBody."""
         expect = "2"
         self.assertTrue(TestCodeGen.test(input,expect,574))
+
+    def test_array_25(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[2][2] = {{1,2},{3,4}};
+                        x = {{5,6},{7,8}};
+                        print(string_of_int(x[1][1]));
+                    EndBody."""
+        expect = "8"
+        self.assertTrue(TestCodeGen.test(input,expect,575))
+
+    def test_array_26(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[2][2] = {{1,2},{3,4}};
+                        x[0][1] = 5;
+                        print(string_of_int(x[0][1]));
+                    EndBody."""
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input,expect,576))

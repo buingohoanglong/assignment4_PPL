@@ -229,9 +229,10 @@ class Emitter():
     *
     '''
     def emitWRITEVAR2(self, name, typ, index, frame):
-        #name: String
-        #typ: Type
+        #name: String (variable name)
+        #typ: Type (variable type)
         #frame: Frame
+        #index: Int (index of this variable on local memory)
         #..., value -> ...
         code_gen = ""
         frame.push()
