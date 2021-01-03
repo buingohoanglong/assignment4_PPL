@@ -28,39 +28,45 @@ Label0:
 	aload_1
 	iconst_0
 	baload
+	ifle Label2
 	aload_1
 	iconst_2
 	baload
-	iand
+	ifle Label2
+	iconst_1
+	goto Label3
+Label2:
+	iconst_0
+Label3:
 	bastore
 	iconst_0
 	istore_2
-Label4:
+Label6:
 	iload_2
 	iconst_3
-	if_icmpge Label6
+	if_icmpge Label8
 	iconst_1
-	goto Label7
-Label6:
+	goto Label9
+Label8:
 	iconst_0
-Label7:
-	ifle Label5
-Label2:
+Label9:
+	ifle Label7
+Label4:
 	aload_1
 	iload_2
 	baload
 	invokestatic io/string_of_bool(Z)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
-Label3:
+Label5:
 	iconst_1
 	iload_2
 	iadd
 	istore_2
-	goto Label4
-Label5:
+	goto Label6
+Label7:
 Label1:
 	return
-.limit stack 14
+.limit stack 15
 .limit locals 3
 .end method
 

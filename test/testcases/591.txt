@@ -2,11 +2,11 @@ Var: x[5] = {1,2,3,4,5};
         Function: sum
             Parameter: x[5]
                 Body:
-                    Var: sum = 0, i = 0;
+                    Var: s = 0, i = 0;
                     For (i = 0 , i < 5, 1) Do
-                        sum = sum + x[i];
+                        s = s + x[i];
                     EndFor.
-                    Return sum;
+                    Return s;
                 EndBody.
         Function: main
             Body:

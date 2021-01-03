@@ -1433,9 +1433,9 @@ class CheckCodeGenSuite(unittest.TestCase):
         Function: radius
             Parameter: x, y
             Body:
-                Var: radius = 5.5;
-                radius = sqrt(x*.x +. y*.y);
-                Return radius;
+                Var: r = 5.5;
+                r = sqrt(x*.x +. y*.y);
+                Return r;
             EndBody.
         Function: main
             Body:
@@ -1451,11 +1451,11 @@ class CheckCodeGenSuite(unittest.TestCase):
         Function: sum
             Parameter: x[5]
                 Body:
-                    Var: sum = 0, i = 0;
+                    Var: s = 0, i = 0;
                     For (i = 0 , i < 5, 1) Do
-                        sum = sum + x[i];
+                        s = s + x[i];
                     EndFor.
-                    Return sum;
+                    Return s;
                 EndBody.
         Function: main
             Body:
@@ -1467,104 +1467,152 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "15"
         self.assertTrue(TestCodeGen.test(input,expect,591))
 
-    # def test_full_program_5(self):
-    #     input = """Var: x = 5;
-    #     Function: fact
-    #         Parameter: n
-    #             Body:
-    #                 If n == 0 Then
-    #                     Return 1;
-    #                 Else
-    #                     Return n * fact (n - 1);
-    #                 EndIf.
-    #             EndBody.
-    #     Function: main
-    #         Body:
-    #             x = 10;
-    #             print(string_of_int(fact(x)));
-    #             Return;
-    #         EndBody."""
-    #     expect = "3628800"
-    #     self.assertTrue(TestCodeGen.test(input,expect,592))
+    def test_full_program_5(self):
+        input = """Var: x = 5;
+        Function: fact
+            Parameter: n
+                Body:
+                    If n == 0 Then
+                        Return 1;
+                    Else
+                        Return n * fact (n - 1);
+                    EndIf.
+                EndBody.
+        Function: main
+            Body:
+                x = 10;
+                print(string_of_int(fact(x)));
+                Return;
+            EndBody."""
+        expect = "3628800"
+        self.assertTrue(TestCodeGen.test(input,expect,592))
 
-    # def test_full_program_7(self):
-    #     input = """           
-    #     Function: main
-    #         Body:
-    #             Var: a[3][2] = {{1,2},{3,4},{5,6}}, i = 0;
-    #             While i < 3 Do
-    #                 Var: j = 0;
-    #                 If i < j Then
-    #                     Continue;
-    #                 EndIf.
-    #                 While (j < 2) Do
-    #                     printStrLn(string_of_int(a[i][j]));
-    #                     j =  j + 1;
-    #                     If j == 3 Then
-    #                         Continue;
-    #                     EndIf.
-    #                 EndWhile.
-    #                 i = i + 1;           
-    #             EndWhile.
-    #             Return;
-    #         EndBody."""
-    #     expect = str("")
-    #     self.assertTrue(TestChecker.test(input,expect,496))
+    def test_full_program_6(self):
+        input = """           
+        Function: main
+            Body:
+                Var: a[3][2] = {{1,2},{3,4},{5,6}}, i = 0;
+                While i < 3 Do
+                    Var: j = 0;
+                    If i < j Then
+                        Continue;
+                    EndIf.
+                    While (j < 2) Do
+                        print(string_of_int(a[i][j]));
+                        j =  j + 1;
+                        If j == 3 Then
+                            Continue;
+                        EndIf.
+                    EndWhile.
+                    i = i + 1;           
+                EndWhile.
+                Return;
+            EndBody."""
+        expect = "123456"
+        self.assertTrue(TestCodeGen.test(input,expect,593))
 
-    # def test_full_program_8(self):
-    #     input = """
-    #     Function: foo
-    #         Parameter: a[2]
-    #         Body:
-    #             Var: x[3], y;
-    #             a[y] = x[a[x[a[x[y]]]]] + foo(a);
-    #             Return y;
-    #         EndBody.
-    #     Function: main
-    #         Body:
-    #             printStrLn(string_of_int(foo({1,2})));
-    #             Return;
-    #         EndBody."""
-    #     expect = str("")
-    #     self.assertTrue(TestChecker.test(input,expect,497))
+    def test_full_program_7(self):
+        input = """
+        Function: foo
+            Parameter: a[5]
+            Body:
+                Var: x[3] = {1,2,3,4,5,6}, y = 1;
+                a[y] = x[a[x[a[x[y]]]]];
+                Return a[y] + y;
+            EndBody.
+        Function: main
+            Body:
+                print(string_of_int(foo({1,2,3,4,5})));
+                Return;
+            EndBody."""
+        expect = "7"
+        self.assertTrue(TestCodeGen.test(input,expect,594))
 
-    # def test_full_program_9(self):
-    #     input = """
-    #     Function: sum
-    #         Parameter: x,y
-    #         Body:
-    #             Return x + y;
-    #         EndBody.
-    #     Function: power
-    #         Parameter: x,y
-    #         Body:
-    #             Var: result = 1, i;
-    #             For (i = 1, i <= y, 1) Do
-    #                 result = result * x;
-    #             EndFor.
-    #             Return result;
-    #         EndBody.
-    #     Function: sqrt
-    #         Parameter: x
-    #         Body:
-    #             Return 1;
-    #         EndBody.            
-    #     Function: main
-    #         Body:
-    #             Var: a[5], x, y;
-    #             a[x * y - sum(x,y)] = a[sum(x,y) * 2 + a[x*y] - sqrt(power(x,2))] * sqrt(power(x+y,x*y) + power(x,y));
-    #             Return;
-    #         EndBody."""
-    #     expect = str("")
-    #     self.assertTrue(TestChecker.test(input,expect,498))
+    def test_full_program_8(self):
+        input = """
+        Function: sum
+            Parameter: x,y
+            Body:
+                Return x + y;
+            EndBody.
+        Function: power
+            Parameter: x,y
+            Body:
+                Var: result = 1, i = 0;
+                For (i = 1, i <= y, 1) Do
+                    result = result * x;
+                EndFor.
+                Return result;
+            EndBody.
+        Function: sqrt
+            Parameter: x
+            Body:
+                Return 1;
+            EndBody.            
+        Function: main
+            Body:
+                Var: a[10] = {1,2,3,4,5,6,7,8,9,10}, x = 2, y = 3;
+                printStrLn(string_of_int(a[1]));
+                a[x * y - sum(x,y)] = a[sum(x,y) * 2 + a[x*y] - sqrt(power(x,2))*10] * (power(x+y,x*y) - power(x,y));
+                print(string_of_int(a[1]));
+                Return;
+            EndBody."""
+        expect = "2\n124936"
+        self.assertTrue(TestCodeGen.test(input,expect,595))
 
-    # def test_full_program_10(self):
-    #     input = """           
-    #     Function: main
-    #         Body:
-    #             Var: a[3][2] = {{1,2}, {3,4}, {5,6}}, x, y;
-    #             a[a[x+y][x-y]][a[x*y][x\y]] = 1;
-    #             Return;
-    #         EndBody."""
-    #     expect = str("")
-    #     self.assertTrue(TestChecker.test(input,expect,499))
+    def test_full_program_9(self):
+        input = """           
+        Function: main
+            Body:
+                Var: a[9][6] = {{1,2,3,4,5,6}, {3,4,5,6,7,8}, {5,3,4,8,9,10}, {7,8,10,11,12,13}, {9,10,11,12,13,14}, {11,12,13,14,15,16}, {13,14,15,16,17,18}, {15,16,17,18,19,20}, {16,17,18,19,20,21}}, x = 2, y = 1;
+                printStrLn(string_of_int(a[8][4]));
+                printStrLn(string_of_int(a[x+y][x-y]));
+                printStrLn(string_of_int(a[x*y][x\y]));
+                a[a[x+y][x-y]][a[x*y][x\y]] = a[a[x+y][x-y]][a[x*y][x\y]] + 100;
+                print(string_of_int(a[8][4]));
+            EndBody."""
+        expect = "20\n8\n4\n120"
+        self.assertTrue(TestCodeGen.test(input,expect,596))
+
+    # test short circuit evaluation
+    def test_short_circuit_evaluation_1(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, y = 0;
+                If ((x > y) || ((x \ y) > 1)) Then
+                    print("Hello");
+                Else
+                    print("World");
+                EndIf.
+            EndBody."""
+        expect = "Hello"
+        self.assertTrue(TestCodeGen.test(input,expect,597))
+    
+    def test_short_circuit_evaluation_2(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, y = 0;
+                If ((x < y) && ((x \ y) > 1)) Then
+                    print("Hello");
+                Else
+                    print("World");
+                EndIf.
+            EndBody."""
+        expect = "World"
+        self.assertTrue(TestCodeGen.test(input,expect,598))
+
+    def test_short_circuit_evaluation_3(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, y = 1;
+                If ((x < y) || ((x \ y) > 1)) Then
+                    print("Hello");
+                Else
+                    print("World");
+                EndIf.
+            EndBody."""
+        expect = "Hello"
+        self.assertTrue(TestCodeGen.test(input,expect,599))

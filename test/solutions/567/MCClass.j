@@ -48,8 +48,14 @@ Label2:
 Label8:
 	iconst_0
 Label9:
+	ifgt Label10
 	iconst_0
-	ior
+	ifgt Label10
+	iconst_0
+	goto Label11
+Label10:
+	iconst_1
+Label11:
 	bastore
 Label3:
 	iconst_1
@@ -60,32 +66,32 @@ Label3:
 Label5:
 	iconst_0
 	istore_1
-Label12:
+Label14:
 	iload_1
 	iconst_3
-	if_icmpge Label14
+	if_icmpge Label16
 	iconst_1
-	goto Label15
-Label14:
+	goto Label17
+Label16:
 	iconst_0
-Label15:
-	ifle Label13
-Label10:
+Label17:
+	ifle Label15
+Label12:
 	getstatic MCClass/x [Z
 	iload_1
 	baload
 	invokestatic io/string_of_bool(Z)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
-Label11:
+Label13:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label12
-Label13:
+	goto Label14
+Label15:
 Label1:
 	return
-.limit stack 20
+.limit stack 21
 .limit locals 2
 .end method
 

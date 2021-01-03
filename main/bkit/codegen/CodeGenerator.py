@@ -474,23 +474,63 @@ class CodeGenVisitor(BaseVisitor):
     def visitBinaryOp(self,ast, c):
         self.type_inferrer.visit(ast, c.sym)
 
-        left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
-        right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
+        # left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+        # right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
         if ast.op in ['+', '+.', '-', '-.']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitADDOP(ast.op[0], ltype, c.frame), ltype)
         elif ast.op in ['*', '*.', '\\', '\\.']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitMULOP(ast.op[0], ltype, c.frame), ltype)
         elif ast.op in ['%']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitMOD(c.frame), ltype)
         elif ast.op in ['&&']:  # short-circuit evaluation
-            return (left + right + self.emit.emitANDOP(c.frame), BoolType())
+            # return (left + right + self.emit.emitANDOP(c.frame), BoolType())
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            code_gen = left
+            label1 = c.frame.getNewLabel()
+            label2 = c.frame.getNewLabel()
+            code_gen += self.emit.emitIFFALSE(label1, c.frame)
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
+            code_gen += right
+            code_gen += self.emit.emitIFFALSE(label1, c.frame)
+            code_gen += self.emit.emitPUSHICONST(1, c.frame)
+            code_gen += self.emit.emitGOTO(label2, c.frame)
+            code_gen += self.emit.emitLABEL(label1, c.frame)
+            code_gen += self.emit.emitPUSHICONST(0, c.frame)
+            code_gen += self.emit.emitLABEL(label2, c.frame)
+            return (code_gen, BoolType())
         elif ast.op in ['||']:  # short-circuit evaluation
-            return (left + right + self.emit.emitOROP(c.frame), BoolType())
+            # return (left + right + self.emit.emitOROP(c.frame), BoolType())
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            code_gen = left
+            label1 = c.frame.getNewLabel()
+            label2 = c.frame.getNewLabel()
+            code_gen += self.emit.emitIFTRUE(label1, c.frame)
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
+            code_gen += right
+            code_gen += self.emit.emitIFTRUE(label1, c.frame)
+            code_gen += self.emit.emitPUSHICONST(0, c.frame)
+            code_gen += self.emit.emitGOTO(label2, c.frame)
+            code_gen += self.emit.emitLABEL(label1, c.frame)
+            code_gen += self.emit.emitPUSHICONST(1, c.frame)
+            code_gen += self.emit.emitLABEL(label2, c.frame)
+            return (code_gen, BoolType())
         elif ast.op in ['>', '<', '>=', '<=', '==', '!=']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitREOP(ast.op, ltype, c.frame), BoolType())
         elif ast.op in ['>.', '<.', '>=.', '<=.']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitREOP(ast.op[:-1], ltype, c.frame), BoolType())
         elif ast.op in ['=/=']:
+            left, ltype = self.visit(ast.left, Access(c.frame, c.sym, False))
+            right, rtype = self.visit(ast.right, Access(c.frame, c.sym, False))
             return (left + right + self.emit.emitREOP('!=', ltype, c.frame), BoolType())
 
     def visitUnaryOp(self,ast, c):
@@ -782,6 +822,8 @@ class TypeInferrer(BaseVisitor):
 
 
     def visitFuncDecl(self,ast, c):
+        self.symbol(ast.name.name, c).mtype.is_current_function = True
+
         # visit param
         param_envir = []
         for param in ast.param:
@@ -805,35 +847,37 @@ class TypeInferrer(BaseVisitor):
                 total_envir.append(self.symbol(name,c))
 
 
-        total_envir.append(Symbol("Current Function", self.symbol(ast.name.name, c).mtype))
-        current_function = self.symbol(ast.name.name, total_envir)
-        del total_envir[self.index(ast.name.name, total_envir)]
-        total_envir.append(current_function)   # append current function to the end of dictionary
+        # total_envir.append(Symbol("Current Function", self.symbol(ast.name.name, c).mtype))
+        # current_function = self.symbol(ast.name.name, total_envir)
+        # del total_envir[self.index(ast.name.name, total_envir)]
+        # total_envir.append(current_function)   # append current function to the end of dictionary
         # visit stmt
         for stmt in ast.body[1]:
             result = self.visit(stmt, total_envir)
 
             # type inference for function parameters
-            if isinstance(total_envir[-1].mtype, MType): # current function is not hiden in local scope (by same name variable)
-                for index in range(len(param_envir)):
-                    type1 = total_envir[index].mtype
-                    type2 = self.symbol(total_envir[-1].name, total_envir).mtype.partype[index]
-                    type1, type2 = self.mutual_infer(type1=type1, type2=type2)
-                    total_envir[index].mtype = type1
-                    self.symbol(total_envir[-1].name, total_envir).mtype.partype[index] = type2
+            # if isinstance(total_envir[-1].mtype, MType): # current function is not hiden in local scope (by same name variable)
+            for index in range(len(param_envir)):
+                type1 = total_envir[index].mtype
+                type2 = self.symbol(ast.name.name, total_envir).mtype.partype[index]
+                type1, type2 = self.mutual_infer(type1=type1, type2=type2)
+                total_envir[index].mtype = type1
+                self.symbol(ast.name.name, total_envir).mtype.partype[index] = type2
 
-                    self.symbol("Current Function", total_envir).mtype.partype[index] = type2
+                # self.symbol("Current Function", total_envir).mtype.partype[index] = type2
 
         # update global environment
         for name in self.nameList(c):
             if name not in self.nameList(local_envir):
                 self.symbol(name, c).mtype = self.symbol(name, total_envir).mtype
-            else:
-                if not isinstance(self.symbol(total_envir[-1].name, total_envir).mtype, MType):
-                    self.symbol(total_envir[-1].name, c).mtype.rettype = self.symbol("Current Function", total_envir).mtype.rettype
+            # else:
+            #     if not isinstance(self.symbol(total_envir[-1].name, total_envir).mtype, MType):
+            #         self.symbol(total_envir[-1].name, c).mtype.rettype = self.symbol("Current Function", total_envir).mtype.rettype
 
-        if self.symbol(total_envir[-1].name, c).mtype.rettype == Unknown():
-            self.symbol(total_envir[-1].name, c).mtype.rettype = VoidType()
+        if self.symbol(ast.name.name, c).mtype.rettype == Unknown():
+            self.symbol(ast.name.name, c).mtype.rettype = VoidType()
+
+        self.symbol(ast.name.name, c).mtype.is_current_function = False
 
 
     def visitAssign(self,ast, c):   # left hand side can be in any type except VoidType
@@ -947,10 +991,10 @@ class TypeInferrer(BaseVisitor):
                 self.symbol(name, total_envir).mtype = self.symbol(name, local_envir).mtype
             else:
                 total_envir.append(self.symbol(name, local_envir))
-        current_function_name = c[-1].name
-        current_function = self.symbol(current_function_name, total_envir)
-        del total_envir[self.index(current_function_name, total_envir)]
-        total_envir.append(current_function)   # append current function to the end of dictionary
+        # current_function_name = c[-1].name
+        # current_function = self.symbol(current_function_name, total_envir)
+        # del total_envir[self.index(current_function_name, total_envir)]
+        # total_envir.append(current_function)   # append current function to the end of dictionary
 
         # visit stmt
         for stmt in ast.loop[1]:
@@ -970,14 +1014,16 @@ class TypeInferrer(BaseVisitor):
 
     def visitReturn(self,ast, c):
         returntype = VoidType() if ast.expr == None else self.visit(ast.expr, c)
-        current_returntype = self.symbol("Current Function", c).mtype.rettype
+        current_function = None
+        for sym in c:
+            if isinstance(sym.mtype, MType) and sym.mtype.is_current_function:
+                current_function = sym
+        current_returntype = current_function.mtype.rettype
 
         # type inference
         current_returntype, returntype = self.mutual_infer(type1=current_returntype, type2=returntype)
         # current return type update
-        self.symbol("Current Function", c).mtype.rettype = current_returntype
-        if isinstance(c[-1].mtype, MType):
-            self.symbol(c[-1].name, c).mtype.rettype = current_returntype
+        current_function.mtype.rettype = current_returntype
         # expr type update 
         self.direct_infer(e=ast.expr, inferred_type=returntype, c=c)
 
@@ -995,10 +1041,10 @@ class TypeInferrer(BaseVisitor):
                 self.symbol(name, total_envir).mtype = self.symbol(name, local_envir).mtype
             else:
                 total_envir.append(self.symbol(name, local_envir))
-        current_function_name = c[-1].name
-        current_function = self.symbol(current_function_name, total_envir)
-        del total_envir[self.index(current_function_name, total_envir)]
-        total_envir.append(current_function)   # append current function to the end of dictionary
+        # current_function_name = c[-1].name
+        # current_function = self.symbol(current_function_name, total_envir)
+        # del total_envir[self.index(current_function_name, total_envir)]
+        # total_envir.append(current_function)   # append current function to the end of dictionary
 
         # visit stmt
         for stmt in ast.sl[1]:
@@ -1035,10 +1081,10 @@ class TypeInferrer(BaseVisitor):
                 self.symbol(name, total_envir).mtype = self.symbol(name, local_envir).mtype
             else:
                 total_envir.append(self.symbol(name, local_envir))
-        current_function_name = c[-1].name
-        current_function = self.symbol(current_function_name, total_envir)
-        del total_envir[self.index(current_function_name, total_envir)]
-        total_envir.append(current_function)   # append current function to the end of dictionary
+        # current_function_name = c[-1].name
+        # current_function = self.symbol(current_function_name, total_envir)
+        # del total_envir[self.index(current_function_name, total_envir)]
+        # total_envir.append(current_function)   # append current function to the end of dictionary
 
         # visit stmt
         for stmt in ast.sl[1]:
@@ -1065,13 +1111,17 @@ class TypeInferrer(BaseVisitor):
 
             # if func call inside the same func declare
             # update param of declared function in every agument iteration
-            if ast.method.name == c[-1].name and isinstance(c[-1].mtype, MType):
+            current_function = None
+            for sym in c:
+                if isinstance(sym.mtype, MType) and sym.mtype.is_current_function:
+                    current_function = sym
+            if ast.method.name == current_function.name:
                 for j in range(len(ast.param)):
                     type1 = self.symbol(ast.method.name, c).mtype.partype[j]
                     type2 = c[j].mtype
                     self.symbol(ast.method.name, c).mtype.partype[j], c[j].mtype = self.mutual_infer(type1=type1, type2=type2)
 
-                    self.symbol("Current Function", c).mtype.partype[j] = self.symbol(ast.method.name, c).mtype.partype[j]
+                    # self.symbol("Current Function", c).mtype.partype[j] = self.symbol(ast.method.name, c).mtype.partype[j]
 
         # check/infer return type
         if self.symbol(ast.method.name, c).mtype.rettype == Unknown():
@@ -1132,13 +1182,17 @@ class TypeInferrer(BaseVisitor):
 
             # if func call inside the same func declare
             # update param of declared function in every agument iteration
-            if ast.method.name == c[-1].name and isinstance(c[-1].mtype, MType):
+            current_function = None
+            for sym in c:
+                if isinstance(sym.mtype, MType) and sym.mtype.is_current_function:
+                    current_function = sym
+            if ast.method.name == current_function.name and isinstance(current_function.mtype, MType):
                 for j in range(len(ast.param)):
                     type1 = self.symbol(ast.method.name, c).mtype.partype[j]
                     type2 = c[j].mtype
                     self.symbol(ast.method.name, c).mtype.partype[j], c[j].mtype = self.mutual_infer(type1=type1, type2=type2)
 
-                    self.symbol("Current Function", c).mtype.partype[j] = self.symbol(ast.method.name, c).mtype.partype[j]
+                    # self.symbol("Current Function", c).mtype.partype[j] = self.symbol(ast.method.name, c).mtype.partype[j]
         
         return self.symbol(ast.method.name, c).mtype.rettype
 

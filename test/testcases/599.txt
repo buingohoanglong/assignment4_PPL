@@ -1,0 +1,10 @@
+           
+        Function: main
+            Body:
+                Var: x = 5, y = 1;
+                If ((x < y) || ((x \ y) > 1)) Then
+                    print("Hello");
+                Else
+                    print("World");
+                EndIf.
+            EndBody.

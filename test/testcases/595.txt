@@ -1,0 +1,28 @@
+
+        Function: sum
+            Parameter: x,y
+            Body:
+                Return x + y;
+            EndBody.
+        Function: power
+            Parameter: x,y
+            Body:
+                Var: result = 1, i = 0;
+                For (i = 1, i <= y, 1) Do
+                    result = result * x;
+                EndFor.
+                Return result;
+            EndBody.
+        Function: sqrt
+            Parameter: x
+            Body:
+                Return 1;
+            EndBody.            
+        Function: main
+            Body:
+                Var: a[10] = {1,2,3,4,5,6,7,8,9,10}, x = 2, y = 3;
+                printStrLn(string_of_int(a[1]));
+                a[x * y - sum(x,y)] = a[sum(x,y) * 2 + a[x*y] - sqrt(power(x,2))*10] * (power(x+y,x*y) - power(x,y));
+                print(string_of_int(a[1]));
+                Return;
+            EndBody.

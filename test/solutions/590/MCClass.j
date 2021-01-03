@@ -16,7 +16,7 @@ Label1:
 .method public static radius(FF)F
 .var 0 is x F from Label0 to Label1
 .var 1 is y F from Label0 to Label1
-.var 2 is radius F from Label0 to Label1
+.var 2 is r F from Label0 to Label1
 	ldc 5.5
 	fstore_2
 Label0:

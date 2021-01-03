@@ -1,0 +1,10 @@
+           
+        Function: main
+            Body:
+                Var: a[9][6] = {{1,2,3,4,5,6}, {3,4,5,6,7,8}, {5,3,4,8,9,10}, {7,8,10,11,12,13}, {9,10,11,12,13,14}, {11,12,13,14,15,16}, {13,14,15,16,17,18}, {15,16,17,18,19,20}, {16,17,18,19,20,21}}, x = 2, y = 1;
+                printStrLn(string_of_int(a[8][4]));
+                printStrLn(string_of_int(a[x+y][x-y]));
+                printStrLn(string_of_int(a[x*y][x\y]));
+                a[a[x+y][x-y]][a[x*y][x\y]] = a[a[x+y][x-y]][a[x*y][x\y]] + 100;
+                print(string_of_int(a[8][4]));
+            EndBody.
