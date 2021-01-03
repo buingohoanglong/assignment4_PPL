@@ -1,0 +1,7 @@
+
+                Function: main
+                    Body:
+                        Var: x[3] = {"Hello","World","!"};
+                        x[1] = "Long";
+                        print(x[1]);
+                    EndBody.

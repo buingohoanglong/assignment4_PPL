@@ -958,3 +958,70 @@ class CheckCodeGenSuite(unittest.TestCase):
                    EndBody."""
         expect = "truefalsetrue"
         self.assertTrue(TestCodeGen.test(input,expect,568))
+
+    def test_array_19(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {"Hello", "World", "!"};
+                        print(x[1]);
+                    EndBody."""
+        expect = "World"
+        self.assertTrue(TestCodeGen.test(input,expect,569))
+
+    def test_array_20(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {"Hello","World","!"};
+                        x = {"I","am","Long"};
+                        print(x[1]);
+                    EndBody."""
+        expect = "am"
+        self.assertTrue(TestCodeGen.test(input,expect,570))
+
+    def test_array_21(self):
+        """Simple program: int main() {} """
+        input = """
+                Function: main
+                    Body:
+                        Var: x[3] = {"Hello","World","!"};
+                        x[1] = "Long";
+                        print(x[1]);
+                    EndBody."""
+        expect = "Long"
+        self.assertTrue(TestCodeGen.test(input,expect,571))
+
+    def test_array_22(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {"Hello", "World", "!"};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {"Hello", "Long", "!"};
+                        For (i = 0, i < 3, 1) Do
+                            print(x[i]);
+                        EndFor.
+                   EndBody."""
+        expect = "HelloLong!"
+        self.assertTrue(TestCodeGen.test(input,expect,572))
+
+    def test_array_23(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[3] = {"Hello", "World", "!"};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        For (i = 0, i < 3, 1) Do
+                            x[i] = "i";
+                        EndFor.
+                        For (i = 0, i < 3, 1) Do
+                            print(x[i]);
+                        EndFor.
+                   EndBody."""
+        expect = "iii"
+        self.assertTrue(TestCodeGen.test(input,expect,573))

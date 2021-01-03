@@ -27,10 +27,14 @@ class Emitter():
         elif typeIn is cgen.ClassType:
             return "L" + inType.cname + ";"
 
-    def getFullType(inType):
+    def getFullType(self, inType):
         typeIn = type(inType)
         if typeIn is cgen.IntType:
             return "int"
+        elif typeIn is cgen.FloatType:
+            return "float"
+        elif typeIn is cgen.BoolType:
+            return "boolean"
         elif typeIn is cgen.StringType:
             return "java/lang/String"
         elif typeIn is cgen.VoidType:
@@ -554,14 +558,17 @@ class Emitter():
         # in_: List[Symbol]
         code_gen = ""
         code_gen += self.emitPUSHICONST(len(in_), frame)
-        array_type = ''
-        if isinstance(typ, cgen.IntType):
-            array_type = 'int'
-        elif isinstance(typ, cgen.FloatType):
-            array_type = 'float'
-        elif isinstance(typ, cgen.BoolType):
-            array_type = 'boolean'
-        code_gen += self.jvm.emitNEWARRAY(array_type)
+        # array_type = ''
+        # if isinstance(typ, cgen.IntType):
+        #     array_type = 'int'
+        # elif isinstance(typ, cgen.FloatType):
+        #     array_type = 'float'
+        # elif isinstance(typ, cgen.BoolType):
+        #     array_type = 'boolean'
+        if isinstance(typ, cgen.IntType) or isinstance(typ, cgen.FloatType) or isinstance(typ, cgen.BoolType):
+            code_gen += self.jvm.emitNEWARRAY(self.getFullType(typ))
+        elif isinstance(typ, cgen.StringType):
+            code_gen += self.jvm.emitANEWARRAY(self.getFullType(typ))
         return code_gen
 
     '''   generate code to jump to label if the value on top of operand stack is true.<p>

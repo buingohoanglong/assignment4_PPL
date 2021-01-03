@@ -1,0 +1,10 @@
+
+                Var: x[3] = {"Hello", "World", "!"};
+                Function: main
+                   Body: 
+                        Var: i = 0;
+                        x = {"Hello", "Long", "!"};
+                        For (i = 0, i < 3, 1) Do
+                            print(x[i]);
+                        EndFor.
+                   EndBody.
