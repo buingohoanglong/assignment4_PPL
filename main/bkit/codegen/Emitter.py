@@ -21,11 +21,18 @@ class Emitter():
         elif typeIn is cgen.VoidType:
             return "V"
         elif typeIn is cgen.ArrayType:
-            return "[" + self.getJVMType(inType.eleType)
+            if len(inType.dimen) > 1:
+                inType = cgen.ArrayType(inType.eleType, inType.dimen[1:])
+                # return "[" + self.getJVMType(inType.eleType)
+                return "[" + self.getJVMType(inType)
+            else:
+                return "[" + self.getJVMType(inType.eleType)
         elif typeIn is cgen.MType:
             return "(" + "".join(list(map(lambda x: self.getJVMType(x), inType.partype))) + ")" + self.getJVMType(inType.rettype)
         elif typeIn is cgen.ClassType:
             return "L" + inType.cname + ";"
+        else:
+            assert 2 == 1
 
     def getFullType(self, inType):
         typeIn = type(inType)
@@ -37,8 +44,12 @@ class Emitter():
             return "boolean"
         elif typeIn is cgen.StringType:
             return "java/lang/String"
+        elif typeIn is cgen.ArrayType:
+            return self.getJVMType(inType)[1:]
         elif typeIn is cgen.VoidType:
             return "void"
+        else:
+            assert 1 == 3
 
     def emitPUSHICONST(self, in_, frame):
         #in: Int or Sring
@@ -168,19 +179,26 @@ class Emitter():
     ''' generate the second instruction for array cell access
     *
     '''
-    def emitREADVAR2(self, name, typ, var_index, index, frame):
-        #name: String
-        #typ: Type
+    def emitREADVAR2(self, name, typ, var_index, index_lst, frame):
+        #name: String (variable name)
+        #typ: Type  (variable type)
         #frame: Frame
+        #var_index: Int (index of this variable on local memory)
+        #index_lst: List[String] (code of value assign to this variable)
         #... -> ..., value
         code_gen = ""
         code_gen += self.emitREADVAR(name, typ, var_index, frame)
-        code_gen += index
+        for index, i in zip(index_lst, range(len(index_lst))):
+            code_gen += index
+            if i < len(index_lst) - 1:
+                code_gen += self.emitALOAD(typ, frame)
+            else:
+                code_gen += self.emitALOAD(typ.eleType, frame)
         # frame.pop() # take address
         # frame.pop() # take index
         # frame.push() # push value
         # code_gen += self.jvm.emitIALOAD()
-        code_gen += self.emitALOAD(typ.eleType, frame)
+        # code_gen += self.emitALOAD(typ.eleType, frame)
         return code_gen
         #frame.push()
         raise IllegalOperandException(name)
@@ -567,8 +585,9 @@ class Emitter():
         #     array_type = 'boolean'
         if isinstance(typ, cgen.IntType) or isinstance(typ, cgen.FloatType) or isinstance(typ, cgen.BoolType):
             code_gen += self.jvm.emitNEWARRAY(self.getFullType(typ))
-        elif isinstance(typ, cgen.StringType):
-            code_gen += self.jvm.emitANEWARRAY(self.getFullType(typ))
+        elif isinstance(typ, cgen.StringType) or isinstance(typ, cgen.ArrayType):
+            arraytype_code = self.getFullType(typ)
+            code_gen += self.jvm.emitANEWARRAY(arraytype_code)
         return code_gen
 
     '''   generate code to jump to label if the value on top of operand stack is true.<p>

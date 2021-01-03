@@ -43,7 +43,7 @@ class MType(Type):
         self.rettype = o #Type
         self.is_current_function = False	
 class ArrayType(Type):
-    def __init__(self,et,*s):
+    def __init__(self,et, s = []):   # *s
         self.eleType = et #Type
         self.dimen = s   #List[int]  
 
@@ -501,13 +501,13 @@ class CodeGenVisitor(BaseVisitor):
                         return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
                         # return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
                 else:
-                    idx, idx_type = self.visit(ast.idx[0], Access(c.frame, c.sym, False))
+                    idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.idx]
                     if isinstance(sym.value, Index):    # local variable
-                        return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx, c.frame), sym.mtype.eleType)
+                        return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx_lst, c.frame), sym.mtype.eleType)
                     elif isinstance(sym.value, CName):  # global variable
                         code_gen = ""
                         code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
-                        code_gen += idx
+                        code_gen += idx_lst[0]
                         # c.frame.pop() # take address
                         # c.frame.pop() # take index
                         # c.frame.push() # push value
@@ -545,7 +545,12 @@ class CodeGenVisitor(BaseVisitor):
         array_type = self.type_inferrer.visitArrayLiteral(ast, c.sym)
         code_gen = ""
         # init array
-        code_gen += self.emit.emitINITARRAY(ast.value, array_type.eleType, c.frame)
+        # print(array_type.dimen)
+        # print(len(array_type.dimen))
+        if len(array_type.dimen) > 1:   # array of array of ...
+            code_gen += self.emit.emitINITARRAY(ast.value, array_type, c.frame)
+        else:   # 1-dimension array
+            code_gen += self.emit.emitINITARRAY(ast.value, array_type.eleType, c.frame)
         # init array element
         for literal, index in zip(ast.value, range(len(ast.value))):
             literal_code, literal_type = self.visit(literal, c)
@@ -1135,7 +1140,7 @@ class TypeInferrer(BaseVisitor):
         for ele in ast.value:
             inner_ele_type = self.visit(ele, c)
             innertype = inner_ele_type
-            if isinstance(ele, ArrayLiteral):
+            if isinstance(inner_ele_type, ArrayType):
                 eleType = innertype.eleType
                 innerdimen = innertype.dimen
             else:
