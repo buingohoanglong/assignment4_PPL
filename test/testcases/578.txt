@@ -1,0 +1,16 @@
+
+                Var: x[2][2] = {{1,2},{3,4}};
+                Function: main
+                   Body: 
+                        Var: i = 0, j = 0;
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                x[i][j] = i + j;
+                            EndFor.
+                        EndFor.
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                print(string_of_int(x[i][j]));
+                            EndFor.
+                        EndFor.
+                   EndBody.
