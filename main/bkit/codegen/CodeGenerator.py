@@ -510,12 +510,12 @@ class CodeGenVisitor(BaseVisitor):
                     elif isinstance(sym.value, CName):  # global variable
                         code_gen = ""
                         code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
-                        code_gen += idx_lst[0]
-                        # c.frame.pop() # take address
-                        # c.frame.pop() # take index
-                        # c.frame.push() # push value
-                        # code_gen += self.emit.jvm.emitIALOAD()
-                        code_gen += self.emit.emitALOAD(sym.mtype.eleType, c.frame)
+                        for idx, i in zip(idx_lst, range(len(idx_lst))):
+                            code_gen += idx
+                            if i < len(idx_lst) - 1:
+                                code_gen += self.emit.emitALOAD(sym.mtype, c.frame)
+                            else:
+                                code_gen += self.emit.emitALOAD(sym.mtype.eleType, c.frame)
                         return (code_gen, sym.mtype.eleType)       
 
     def visitId(self,ast, c):

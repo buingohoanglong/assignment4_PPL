@@ -1060,3 +1060,37 @@ class CheckCodeGenSuite(unittest.TestCase):
                     EndBody."""
         expect = "5"
         self.assertTrue(TestCodeGen.test(input,expect,576))
+
+    def test_array_27(self):
+        """Simple program: int main() {} """
+        input = """
+                Var: x[2][2] = {{1,2},{3,4}};
+                Function: main
+                   Body: 
+                        Var: i = 0, j = 0;
+                        x = {{5,6},{7,8}};
+                        For (i = 0, i < 2, 1) Do
+                            For (j = 0, j < 2, 1) Do
+                                print(string_of_int(x[i][j]));
+                            EndFor.
+                        EndFor.
+                   EndBody."""
+        expect = "5678"
+        self.assertTrue(TestCodeGen.test(input,expect,577))
+
+    # def test_array_23(self):
+    #     """Simple program: int main() {} """
+    #     input = """
+    #             Var: x[3] = {"Hello", "World", "!"};
+    #             Function: main
+    #                Body: 
+    #                     Var: i = 0;
+    #                     For (i = 0, i < 3, 1) Do
+    #                         x[i] = "i";
+    #                     EndFor.
+    #                     For (i = 0, i < 3, 1) Do
+    #                         print(x[i]);
+    #                     EndFor.
+    #                EndBody."""
+    #     expect = "iii"
+    #     self.assertTrue(TestCodeGen.test(input,expect,573))
