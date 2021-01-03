@@ -59,7 +59,7 @@ Label5:
 	return
 Label1:
 	return
-.limit stack 12
+.limit stack 11
 .limit locals 2
 .end method
 

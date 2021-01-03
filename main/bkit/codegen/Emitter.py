@@ -64,13 +64,15 @@ class Emitter():
                 return self.jvm.emitBIPUSH(i)
             elif i >= -32768 and i <= 32767:
                 return self.jvm.emitSIPUSH(i)
+            else:
+                return self.jvm.emitLDC(str(i))
         elif type(in_) is str:
             if in_ == "True":   # change to uppercase
                 return self.emitPUSHICONST(1, frame)
             elif in_ == "False": # change to uppercase
                 return self.emitPUSHICONST(0, frame)
             else:
-                return self.emitPUSHICONST(int(in_), frame)
+                return self.emitPUSHICONST(int(in_, 0), frame)
 
     def emitPUSHFCONST(self, in_, frame):
         #in_: String

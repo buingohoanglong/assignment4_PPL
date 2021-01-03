@@ -278,39 +278,64 @@ class CodeGenVisitor(BaseVisitor):
             # if/elif body
             c.frame.enterScope(False)
 
-            local = deepcopy(c)
+            local = MethodEnv(None, [])
             local.frame = c.frame   # reference c.frame to update c.frame
-
             for vardecl in ast.ifthenStmt[i][1]:
                 local.sym.append(self.visit(vardecl, local))
 
             self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+            # visit if/elif statement
+            total_envir = deepcopy(c)
+            for name in self.type_inferrer.nameList(local.sym):
+                if name in self.type_inferrer.nameList(c.sym):
+                    self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
+                    self.type_inferrer.symbol(name, total_envir.sym).value = self.type_inferrer.symbol(name, local.sym).value
+                else:
+                    total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
             for stmt in ast.ifthenStmt[i][2]:
-                self.visit(stmt, local)
+                self.visit(stmt, total_envir)
             
             self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+
+            # update outer environment
+            for name in self.type_inferrer.nameList(c.sym):
+                if name not in self.type_inferrer.nameList(local.sym):
+                    self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
             c.frame.exitScope()
 
             # goto endif
             self.emit.printout(self.emit.emitGOTO(label_lst[-1], c.frame))
 
+
         # visit else part
         self.emit.printout(self.emit.emitLABEL(label_lst[-2], c.frame)) # emit else label
         # else body
         c.frame.enterScope(False)
 
-        local = deepcopy(c)
+        local = MethodEnv(None, [])
         local.frame = c.frame   # reference c.frame to update c.frame
-
         for vardecl in ast.elseStmt[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit if/elif statement
+        total_envir = deepcopy(c)
+        for name in self.type_inferrer.nameList(local.sym):
+            if name in self.type_inferrer.nameList(c.sym):
+                self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
+                self.type_inferrer.symbol(name, total_envir.sym).value = self.type_inferrer.symbol(name, local.sym).value
+            else:
+                total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
         for stmt in ast.elseStmt[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update outer environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
@@ -339,15 +364,30 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitIFFALSE(c.frame.getBreakLabel(), c.frame))        
 
         # loop body
-        local = deepcopy(c)
+        local = MethodEnv(None, [])
         local.frame = c.frame
         for vardecl in ast.loop[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit local statement
+        total_envir = deepcopy(c)
+        total_envir.frame = c.frame
+        for name in self.type_inferrer.nameList(local.sym):
+            if name in self.type_inferrer.nameList(c.sym):
+                self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
+                self.type_inferrer.symbol(name, total_envir.sym).value = self.type_inferrer.symbol(name, local.sym).value
+            else:
+                total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
+
         for stmt in ast.loop[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update outer environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
@@ -399,15 +439,29 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
 
         # loop body
-        local = deepcopy(c)
+        local = MethodEnv(None, [])
         local.frame = c.frame
         for vardecl in ast.sl[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit local statement
+        total_envir = deepcopy(c)
+        total_envir.frame = c.frame
+        for name in self.type_inferrer.nameList(local.sym):
+            if name in self.type_inferrer.nameList(c.sym):
+                self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
+                self.type_inferrer.symbol(name, total_envir.sym).value = self.type_inferrer.symbol(name, local.sym).value
+            else:
+                total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
         for stmt in ast.sl[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update outer environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
@@ -435,15 +489,29 @@ class CodeGenVisitor(BaseVisitor):
         self.emit.printout(self.emit.emitIFFALSE(c.frame.getBreakLabel(), c.frame)) # if condition false, go out loop
 
         # loop body
-        local = deepcopy(c)
+        local = MethodEnv(None, [])
         local.frame = c.frame
         for vardecl in ast.sl[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit local statement
+        total_envir = deepcopy(c)
+        total_envir.frame = c.frame
+        for name in self.type_inferrer.nameList(local.sym):
+            if name in self.type_inferrer.nameList(c.sym):
+                self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
+                self.type_inferrer.symbol(name, total_envir.sym).value = self.type_inferrer.symbol(name, local.sym).value
+            else:
+                total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
         for stmt in ast.sl[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update outer environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
@@ -556,7 +624,7 @@ class CodeGenVisitor(BaseVisitor):
                 # self.emit.printout(buffer)
                 return (buffer, sym.mtype.rettype)
 
-    def visitArrayCell(self,ast, c):
+    def visitArrayCell(self,ast, c):    # ast.arr is callexpr
         self.type_inferrer.visit(ast, c.sym)
 
         for sym in c.sym:
@@ -894,7 +962,7 @@ class TypeInferrer(BaseVisitor):
         
 
     def visitIf(self,ast, c):
-        current_function_name = c[-1].name
+        # current_function_name = c[-1].name
         for ifthenstmt in ast.ifthenStmt:
             # visit condition expression
             exptype = self.visit(ifthenstmt[0], c)
@@ -914,9 +982,9 @@ class TypeInferrer(BaseVisitor):
                     self.symbol(name, total_envir).mtype = self.symbol(name, local_envir).mtype
                 else:
                     total_envir.append(self.symbol(name, local_envir))
-            current_function = self.symbol(current_function_name, total_envir)
-            del total_envir[self.index(current_function_name, total_envir)]
-            total_envir.append(current_function)   # append current function to the end of dictionary
+            # current_function = self.symbol(current_function_name, total_envir)
+            # del total_envir[self.index(current_function_name, total_envir)]
+            # total_envir.append(current_function)   # append current function to the end of dictionary
 
             # visit stmt
             for stmt in ifthenstmt[2]:
@@ -939,9 +1007,9 @@ class TypeInferrer(BaseVisitor):
                 self.symbol(name, total_envir).mtype = self.symbol(name, local_envir).mtype
             else:
                 total_envir.append(self.symbol(name, local_envir))
-        current_function = self.symbol(current_function_name, total_envir)
-        del total_envir[self.index(current_function_name, total_envir)]
-        total_envir.append(current_function)   # append current function to the end of dictionary
+        # current_function = self.symbol(current_function_name, total_envir)
+        # del total_envir[self.index(current_function_name, total_envir)]
+        # total_envir.append(current_function)   # append current function to the end of dictionary
 
         # visit stmt
         for stmt in ast.elseStmt[1]:

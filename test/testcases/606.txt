@@ -1,0 +1,11 @@
+           
+        Function: main
+            Body:
+                Var: x = 5;
+                For (x = 0, x < 2, 1) Do
+                    Var: x = 1.5;
+                    x = x +. 1.5;
+                    print(string_of_float(x));
+                EndFor.
+                print(string_of_int(x));
+            EndBody.

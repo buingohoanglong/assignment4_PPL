@@ -1,0 +1,6 @@
+
+        Function: main
+            Body:
+                Var: x = 0x123ABC;
+                print(string_of_int(x));
+            EndBody.

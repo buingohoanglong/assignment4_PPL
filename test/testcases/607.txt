@@ -1,0 +1,10 @@
+           
+        Function: main
+            Body:
+                Var: x = 5;
+                For (x = 0, x < 10, 1) Do
+                    x = x + 3;
+                    print(string_of_int(x));
+                EndFor.
+                print(string_of_int(x));
+            EndBody.

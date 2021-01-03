@@ -5,57 +5,55 @@
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 .var 1 is x I from Label0 to Label1
-	iconst_0
+	iconst_5
 	istore_1
+.var 2 is a I from Label0 to Label1
+	iconst_5
+	istore_2
+.var 3 is b I from Label0 to Label1
+	bipush 6
+	istore_3
 Label0:
+	iload_2
+	iload_3
+	if_icmple Label4
+	iconst_1
+	goto Label5
 Label4:
-	iload_1
-	bipush 10
-	if_icmpge Label6
-	iconst_1
-	goto Label7
+	iconst_0
+Label5:
+	ifle Label2
+.var 4 is x I from Label6 to Label7
+	iconst_4
+	istore 4
 Label6:
-	iconst_0
-Label7:
-	ifle Label5
-Label2:
-	iload_1
-	iconst_2
-	irem
-	iconst_0
-	if_icmpne Label10
-	iconst_1
-	goto Label11
-Label10:
-	iconst_0
-Label11:
-	ifle Label8
-Label12:
-	iload_1
-	iconst_1
+	iload 4
+	bipush 6
 	iadd
-	istore_1
-	goto Label4
-Label13:
-	goto Label9
+	istore 4
+	iload 4
+	invokestatic io/string_of_int(I)Ljava/lang/String;
+	invokestatic io/print(Ljava/lang/String;)V
+Label7:
+	goto Label3
+Label2:
 Label8:
-Label14:
-Label15:
-Label9:
+	iload_1
+	bipush 6
+	isub
+	istore_1
 	iload_1
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
-	iload_1
-	iconst_1
-	iadd
-	istore_1
+Label9:
 Label3:
-	goto Label4
-Label5:
+	iload_1
+	invokestatic io/string_of_int(I)Ljava/lang/String;
+	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
-.limit stack 11
-.limit locals 2
+.limit stack 7
+.limit locals 5
 .end method
 
 .method public <init>()V

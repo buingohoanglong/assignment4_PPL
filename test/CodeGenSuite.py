@@ -1616,3 +1616,154 @@ class CheckCodeGenSuite(unittest.TestCase):
             EndBody."""
         expect = "Hello"
         self.assertTrue(TestCodeGen.test(input,expect,599))
+
+    # test if
+    def test_if_8(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, a = 5, b = 6;
+                If (a < b) Then
+                    Var: x = 4;
+                    x = x + 6;
+                    print(string_of_int(x));
+                Else
+                    x = x - 6;
+                    print(string_of_int(x));
+                EndIf.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "105"
+        self.assertTrue(TestCodeGen.test(input,expect,600))
+
+    def test_if_9(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, a = 5, b = 6;
+                If (a > b) Then
+                    Var: x = 4;
+                    x = x + 6;
+                    print(string_of_int(x));
+                Else
+                    x = x - 6;
+                    print(string_of_int(x));
+                EndIf.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "-1-1"
+        self.assertTrue(TestCodeGen.test(input,expect,601))
+
+    # test while
+    def test_while_3(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, i = 0;
+                While (i < 1) Do
+                    Var: x = 1.1;
+                    print(string_of_float(x));
+                    i = i + 1;
+                EndWhile.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "1.15"
+        self.assertTrue(TestCodeGen.test(input,expect,602))
+
+    def test_while_4(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5, i = 0;
+                While (i < 1) Do
+                    x = 6;
+                    print(string_of_int(x));
+                    i = i + 1;
+                EndWhile.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "66"
+        self.assertTrue(TestCodeGen.test(input,expect,603))
+
+    # test dowhile
+    def test_dowhile_3(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 1;
+                Do
+                    Var: x = 1.5;
+                    x = x +. 1.5;
+                    print(string_of_float(x));
+                While (x < 1)
+                EndDo.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "3.01"
+        self.assertTrue(TestCodeGen.test(input,expect,604))
+
+    def test_dowhile_4(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 1;
+                Do
+                    x = 6;
+                    print(string_of_int(x));
+                While (x < 1)
+                EndDo.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "66"
+        self.assertTrue(TestCodeGen.test(input,expect,605))
+
+    # test for
+    def test_for_3(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5;
+                For (x = 0, x < 2, 1) Do
+                    Var: x = 1.5;
+                    x = x +. 1.5;
+                    print(string_of_float(x));
+                EndFor.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "3.03.02"
+        self.assertTrue(TestCodeGen.test(input,expect,606))
+
+    def test_for_4(self):
+        input = """           
+        Function: main
+            Body:
+                Var: x = 5;
+                For (x = 0, x < 10, 1) Do
+                    x = x + 3;
+                    print(string_of_int(x));
+                EndFor.
+                print(string_of_int(x));
+            EndBody."""
+        expect = "371112"
+        self.assertTrue(TestCodeGen.test(input,expect,607))
+
+    # test int literal
+    def test_int_literal_1(self):
+        input = """
+        Function: main
+            Body:
+                Var: x = 0x123ABC;
+                print(string_of_int(x));
+            EndBody."""
+        expect = "1194684"
+        self.assertTrue(TestCodeGen.test(input,expect,608))
+
+    def test_int_literal_2(self):
+        input = """
+        Function: main
+            Body:
+                Var: x = 0o1234567;
+                print(string_of_int(x));
+            EndBody."""
+        expect = "342391"
+        self.assertTrue(TestCodeGen.test(input,expect,609))

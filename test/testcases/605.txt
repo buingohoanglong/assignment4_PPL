@@ -1,0 +1,11 @@
+           
+        Function: main
+            Body:
+                Var: x = 1;
+                Do
+                    x = 6;
+                    print(string_of_int(x));
+                While (x < 1)
+                EndDo.
+                print(string_of_int(x));
+            EndBody.
