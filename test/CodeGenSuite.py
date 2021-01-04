@@ -1287,7 +1287,7 @@ class CheckCodeGenSuite(unittest.TestCase):
                 Function: foo
                     Parameter: x[2][2][3]
                     Body:
-                        Var: y = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
+                        Var: y[2][2][3] = {{{1,2,3},{4,5,6}},{{7,8,9},{10,11,12}}};
                         Var: i = 0, j = 0, k = 0;
                         y = x;
                         For (i = 0, i < 2, 1) Do
@@ -1341,7 +1341,7 @@ class CheckCodeGenSuite(unittest.TestCase):
         input = """
                 Function: main
                    Body:
-                        Var: x = {1,2,3}, y = {4,5,6}, i = 0;
+                        Var: x[3] = {1,2,3}, y[3] = {4,5,6}, i = 0;
                         y = x;
                         x[1] = 10;
                         For (i = 0, i < 3, 1) Do
@@ -1521,7 +1521,7 @@ class CheckCodeGenSuite(unittest.TestCase):
         Function: foo
             Parameter: a[5]
             Body:
-                Var: x[3] = {1,2,3,4,5,6}, y = 1;
+                Var: x[6] = {1,2,3,4,5,6}, y = 1;
                 a[y] = x[a[x[a[x[y]]]]];
                 Return a[y] + y;
             EndBody.
@@ -1778,7 +1778,7 @@ class CheckCodeGenSuite(unittest.TestCase):
         input = """ 
         Function: foo
             Body:
-                Var: x = {1,2,3,4,5};
+                Var: x[5] = {1,2,3,4,5};
                 Return x;
             EndBody.          
         Function: main

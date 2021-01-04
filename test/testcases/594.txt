@@ -2,7 +2,7 @@
         Function: foo
             Parameter: a[5]
             Body:
-                Var: x[3] = {1,2,3,4,5,6}, y = 1;
+                Var: x[6] = {1,2,3,4,5,6}, y = 1;
                 a[y] = x[a[x[a[x[y]]]]];
                 Return a[y] + y;
             EndBody.
