@@ -4,14 +4,47 @@
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+	iconst_2
+	anewarray [F
+	dup
+	iconst_0
+	iconst_2
+	newarray float
+	dup
+	iconst_0
+	ldc 1.1
+	fastore
+	dup
+	iconst_1
+	ldc 2.2
+	fastore
+	aastore
+	dup
+	iconst_1
+	iconst_2
+	newarray float
+	dup
+	iconst_0
+	ldc 3.3
+	fastore
+	dup
+	iconst_1
+	ldc 4.4
+	fastore
+	aastore
+	astore_1
 Label0:
-	bipush 120
-	invokestatic io/string_of_int(I)Ljava/lang/String;
+	aload_1
+	iconst_0
+	aaload
+	iconst_0
+	faload
+	invokestatic io/string_of_float(F)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
-.limit stack 2
-.limit locals 1
+.limit stack 9
+.limit locals 2
 .end method
 
 .method public <init>()V

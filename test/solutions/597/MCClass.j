@@ -50,7 +50,7 @@ Label13:
 Label3:
 Label1:
 	return
-.limit stack 9
+.limit stack 11
 .limit locals 3
 .end method
 

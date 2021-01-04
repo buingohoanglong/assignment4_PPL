@@ -84,6 +84,7 @@ class Emitter():
         if rst == "0.0" or rst == "1.0" or rst == "2.0":
             return self.jvm.emitFCONST(rst)
         else:
+            frame.push()    # add this line ??????????
             return self.jvm.emitLDC(in_)           
 
     ''' 
@@ -102,6 +103,7 @@ class Emitter():
             return self.emitPUSHFCONST(in_, frame)
         elif type(typ) is cgen.StringType:
             frame.push()
+            frame.push()    # add this line ????????????????
             return self.jvm.emitLDC("\"" + in_ + "\"")
         else:
             raise IllegalOperandException(in_)

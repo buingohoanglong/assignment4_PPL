@@ -1,4 +1,5 @@
 Function: main
                    Body: 
-                        print(string_of_int(120));
+                        Var: x[2][2] = {{1.1,2.2},{3.3,4.4}};
+                        print(string_of_float(x[0][0]));
                    EndBody.

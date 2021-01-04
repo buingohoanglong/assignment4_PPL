@@ -4,14 +4,46 @@
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+	iconst_2
+	anewarray [Ljava/lang/String;
+	dup
+	iconst_0
+	iconst_2
+	anewarray java/lang/String
+	dup
+	iconst_0
+	ldc "a"
+	aastore
+	dup
+	iconst_1
+	ldc "b"
+	aastore
+	aastore
+	dup
+	iconst_1
+	iconst_2
+	anewarray java/lang/String
+	dup
+	iconst_0
+	ldc "c"
+	aastore
+	dup
+	iconst_1
+	ldc "d"
+	aastore
+	aastore
+	astore_1
 Label0:
-	bipush 120
-	invokestatic io/string_of_int(I)Ljava/lang/String;
+	aload_1
+	iconst_0
+	aaload
+	iconst_0
+	aaload
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
-.limit stack 2
-.limit locals 1
+.limit stack 9
+.limit locals 2
 .end method
 
 .method public <init>()V

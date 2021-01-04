@@ -4,22 +4,26 @@ from AST import *
 
 
 class CheckCodeGenSuite(unittest.TestCase):
-    # Predefined testcases
-    def test_int(self):
+    # test operand stack
+    def test_operand_stack_1(self):
         """Simple program: int main() {} """
         input = """Function: main
                    Body: 
-                        print(string_of_int(120));
+                        Var: x[2][2] = {{1.1,2.2},{3.3,4.4}};
+                        print(string_of_float(x[0][0]));
                    EndBody."""
-        expect = "120"
+        expect = "1.1"
         self.assertTrue(TestCodeGen.test(input,expect,500))
-    def test_int_ast(self):
-    	input = Program([
-    		FuncDecl(Id("main"),[],([],[
-    			CallStmt(Id("print"),[
-                    CallExpr(Id("string_of_int"),[IntLiteral(120)])])]))])
-    	expect = "120"
-    	self.assertTrue(TestCodeGen.test(input,expect,501))
+
+    def test_operand_stack_2(self):
+        """Simple program: int main() {} """
+        input = """Function: main
+                   Body: 
+                        Var: x[2][2] = {{"a","b"},{"c","d"}};
+                        print(x[0][0]);
+                   EndBody."""
+        expect = "a"
+        self.assertTrue(TestCodeGen.test(input,expect,501))
 
     # test binop
     def test_binop_01(self):

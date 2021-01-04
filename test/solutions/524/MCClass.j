@@ -26,7 +26,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
-.limit stack 4
+.limit stack 5
 .limit locals 4
 .end method
 
