@@ -41,7 +41,7 @@ Label0:
 	putstatic MCClass/x [I
 	iconst_0
 	istore_1
-Label4:
+Label2:
 	iload_1
 	iconst_3
 	if_icmpge Label6
@@ -51,7 +51,6 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	getstatic MCClass/x [I
 	iload_1
 	getstatic MCClass/x [I
@@ -63,15 +62,16 @@ Label2:
 	iadd
 	iastore
 Label3:
+Label4:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label4
+	goto Label2
 Label5:
 	iconst_0
 	istore_1
-Label10:
+Label8:
 	iload_1
 	iconst_3
 	if_icmpge Label12
@@ -81,18 +81,18 @@ Label12:
 	iconst_0
 Label13:
 	ifle Label11
-Label8:
 	getstatic MCClass/x [I
 	iload_1
 	iaload
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label9:
+Label10:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label10
+	goto Label8
 Label11:
 Label1:
 	return

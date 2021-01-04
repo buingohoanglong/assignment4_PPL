@@ -10,7 +10,7 @@
 Label0:
 	iconst_0
 	istore_1
-Label4:
+Label2:
 	iload_1
 	iconst_2
 	if_icmpge Label6
@@ -23,7 +23,6 @@ Label7:
 .var 2 is x F from Label2 to Label3
 	ldc 1.5
 	fstore_2
-Label2:
 	fload_2
 	ldc 1.5
 	fadd
@@ -32,11 +31,12 @@ Label2:
 	invokestatic io/string_of_float(F)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label3:
+Label4:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label4
+	goto Label2
 Label5:
 	iload_1
 	invokestatic io/string_of_int(I)Ljava/lang/String;

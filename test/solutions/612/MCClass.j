@@ -61,7 +61,7 @@ Label1:
 Label0:
 	iconst_0
 	istore_2
-Label4:
+Label2:
 	iload_2
 	iconst_2
 	if_icmpge Label6
@@ -71,10 +71,9 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	iconst_0
 	istore_3
-Label10:
+Label8:
 	iload_3
 	iconst_3
 	if_icmpge Label12
@@ -84,7 +83,6 @@ Label12:
 	iconst_0
 Label13:
 	ifle Label11
-Label8:
 	invokestatic MCClass/foo()[[I
 	iload_2
 	aaload
@@ -93,18 +91,20 @@ Label8:
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label9:
+Label10:
 	iconst_1
 	iload_3
 	iadd
 	istore_3
-	goto Label10
+	goto Label8
 Label11:
 Label3:
+Label4:
 	iconst_1
 	iload_2
 	iadd
 	istore_2
-	goto Label4
+	goto Label2
 Label5:
 	invokestatic io/printLn()V
 	invokestatic MCClass/foo()[[I
@@ -119,7 +119,7 @@ Label5:
 	iastore
 	iconst_0
 	istore_2
-Label16:
+Label14:
 	iload_2
 	iconst_2
 	if_icmpge Label18
@@ -129,10 +129,9 @@ Label18:
 	iconst_0
 Label19:
 	ifle Label17
-Label14:
 	iconst_0
 	istore_3
-Label22:
+Label20:
 	iload_3
 	iconst_3
 	if_icmpge Label24
@@ -142,7 +141,6 @@ Label24:
 	iconst_0
 Label25:
 	ifle Label23
-Label20:
 	invokestatic MCClass/foo()[[I
 	iload_2
 	aaload
@@ -151,18 +149,20 @@ Label20:
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label21:
+Label22:
 	iconst_1
 	iload_3
 	iadd
 	istore_3
-	goto Label22
+	goto Label20
 Label23:
 Label15:
+Label16:
 	iconst_1
 	iload_2
 	iadd
 	istore_2
-	goto Label16
+	goto Label14
 Label17:
 Label1:
 	return

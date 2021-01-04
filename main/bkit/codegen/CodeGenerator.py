@@ -397,8 +397,10 @@ class CodeGenVisitor(BaseVisitor):
         idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, True))
         self.emit.printout(idx)
 
+        # start label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getStartLabel(), c.frame))
+
         # condition
-        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # continue label
         exp2, type2 = self.visit(ast.expr2, Access(c.frame, c.sym, False))
         self.emit.printout(exp2)
         self.emit.printout(self.emit.emitIFFALSE(c.frame.getBreakLabel(), c.frame))        
@@ -409,7 +411,7 @@ class CodeGenVisitor(BaseVisitor):
         for vardecl in ast.loop[0]:
             local.sym.append(self.visit(vardecl, local))
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
+        # self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
         # visit local statement
         total_envir = deepcopy(c)
@@ -429,7 +431,11 @@ class CodeGenVisitor(BaseVisitor):
             if name not in self.type_inferrer.nameList(local.sym):
                 self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+        # end label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getEndLabel(), c.frame))
+
+        # continue label
+        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))
 
         # update
         exp3, type3 = self.visit(ast.expr3, Access(c.frame, c.sym, False))  # load exp3
@@ -440,8 +446,9 @@ class CodeGenVisitor(BaseVisitor):
         idx, idx_type = self.visit(ast.idx1, Access(c.frame, c.sym, True))  # store back to idx
         self.emit.printout(idx)
 
-        # goto continue label
-        self.emit.printout(self.emit.emitGOTO(c.frame.getContinueLabel(), c.frame))
+        # goto start label
+        self.emit.printout(self.emit.emitGOTO(c.frame.getStartLabel(), c.frame))
+
         # break label
         self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
 

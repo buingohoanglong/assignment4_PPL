@@ -41,7 +41,7 @@ Label0:
 	putstatic MCClass/x [Z
 	iconst_0
 	istore_1
-Label4:
+Label2:
 	iload_1
 	iconst_3
 	if_icmpge Label6
@@ -51,7 +51,6 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	getstatic MCClass/x [Z
 	iload_1
 	getstatic MCClass/x [Z
@@ -73,15 +72,16 @@ Label10:
 Label11:
 	bastore
 Label3:
+Label4:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label4
+	goto Label2
 Label5:
 	iconst_0
 	istore_1
-Label14:
+Label12:
 	iload_1
 	iconst_3
 	if_icmpge Label16
@@ -91,18 +91,18 @@ Label16:
 	iconst_0
 Label17:
 	ifle Label15
-Label12:
 	getstatic MCClass/x [Z
 	iload_1
 	baload
 	invokestatic io/string_of_bool(Z)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label13:
+Label14:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label14
+	goto Label12
 Label15:
 Label1:
 	return

@@ -35,7 +35,7 @@ Label0:
 	iastore
 	iconst_0
 	istore_2
-Label4:
+Label2:
 	iload_2
 	iconst_3
 	if_icmpge Label6
@@ -45,18 +45,18 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	aload_1
 	iload_2
 	iaload
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label3:
+Label4:
 	iconst_1
 	iload_2
 	iadd
 	istore_2
-	goto Label4
+	goto Label2
 Label5:
 Label1:
 	return

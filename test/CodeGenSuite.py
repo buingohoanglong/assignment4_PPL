@@ -512,9 +512,10 @@ class CheckCodeGenSuite(unittest.TestCase):
                    Body: 
                         Var: x = 0;
                         For (x = 1, x <= 10, 1) Do
-                            If (x % 2 == 0) Then
-                                printStrLn(string_of_int(x));
+                            If (x % 2 == 1) Then
+                                Continue;
                             EndIf.
+                            printStrLn(string_of_int(x));
                         EndFor.
                    EndBody."""
         expect = "2\n4\n6\n8\n10\n"

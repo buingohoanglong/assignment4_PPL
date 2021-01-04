@@ -10,7 +10,7 @@
 Label0:
 	iconst_1
 	istore_1
-Label4:
+Label2:
 	iload_1
 	bipush 10
 	if_icmpgt Label6
@@ -20,11 +20,10 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	iload_1
 	iconst_2
 	irem
-	iconst_0
+	iconst_1
 	if_icmpne Label10
 	iconst_1
 	goto Label11
@@ -33,21 +32,23 @@ Label10:
 Label11:
 	ifle Label8
 Label12:
-	iload_1
-	invokestatic io/string_of_int(I)Ljava/lang/String;
-	invokestatic io/printStrLn(Ljava/lang/String;)V
+	goto Label4
 Label13:
 	goto Label9
 Label8:
 Label14:
 Label15:
 Label9:
+	iload_1
+	invokestatic io/string_of_int(I)Ljava/lang/String;
+	invokestatic io/printStrLn(Ljava/lang/String;)V
 Label3:
+Label4:
 	iconst_1
 	iload_1
 	iadd
 	istore_1
-	goto Label4
+	goto Label2
 Label5:
 Label1:
 	return

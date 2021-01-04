@@ -41,7 +41,7 @@ Label3:
 	bastore
 	iconst_0
 	istore_2
-Label6:
+Label4:
 	iload_2
 	iconst_3
 	if_icmpge Label8
@@ -51,18 +51,18 @@ Label8:
 	iconst_0
 Label9:
 	ifle Label7
-Label4:
 	aload_1
 	iload_2
 	baload
 	invokestatic io/string_of_bool(Z)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label5:
+Label6:
 	iconst_1
 	iload_2
 	iadd
 	istore_2
-	goto Label6
+	goto Label4
 Label7:
 Label1:
 	return

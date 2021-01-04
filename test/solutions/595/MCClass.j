@@ -28,7 +28,7 @@ Label1:
 Label0:
 	iconst_1
 	istore_3
-Label4:
+Label2:
 	iload_3
 	iload_1
 	if_icmpgt Label6
@@ -38,17 +38,17 @@ Label6:
 	iconst_0
 Label7:
 	ifle Label5
-Label2:
 	iload_2
 	iload_0
 	imul
 	istore_2
 Label3:
+Label4:
 	iconst_1
 	iload_3
 	iadd
 	istore_3
-	goto Label4
+	goto Label2
 Label5:
 	iload_2
 	ireturn
