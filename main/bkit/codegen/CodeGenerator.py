@@ -155,24 +155,38 @@ class CodeGenVisitor(BaseVisitor):
                 self.emit.printout(value_code)
                 self.emit.printout(self.emit.emitPUTSTATIC(self.className + '/' + variable.name, variable.mtype, c.frame))
 
-
-        local = deepcopy(c)
+        # visit param
+        local = MethodEnv(None, [])
+        local.frame = c.frame
         for param, param_type in zip(ast.param, func_symbol.mtype.partype):
             # local.sym.append(self.visit(param, local))
             index = local.frame.getNewIndex()
             self.emit.printout(self.emit.emitVAR(index, param.variable.name, param_type, local.frame.getStartLabel(), local.frame.getEndLabel(), local.frame))
             local.sym.append(Symbol(param.variable.name, param_type, Index(index)))
 
-
+        # visit local vardecl
         for vardecl in ast.body[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit statement
+        total_envir = deepcopy(local)
+        total_envir.frame = local.frame
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                # print(name)
+                total_envir.sym.append(self.type_inferrer.symbol(name,c.sym))
         for stmt in ast.body[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update global environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+        
         self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
         self.emit.printout(self.emit.emitENDMETHOD(local.frame))
         c.frame.exitScope()
@@ -219,23 +233,38 @@ class CodeGenVisitor(BaseVisitor):
         
         self.emit.printout(self.emit.emitMETHOD(func_symbol.name, func_symbol.mtype, True, c.frame))
 
-        local = deepcopy(c)
+        # visit param
+        local = MethodEnv(None, [])
+        local.frame = c.frame
         for param, param_type in zip(ast.param, func_symbol.mtype.partype):
             # local.sym.append(self.visit(param, local))
             index = local.frame.getNewIndex()
             self.emit.printout(self.emit.emitVAR(index, param.variable.name, param_type, local.frame.getStartLabel(), local.frame.getEndLabel(), local.frame))
             local.sym.append(Symbol(param.variable.name, param_type, Index(index)))
 
-
+        # visit local declare
         for vardecl in ast.body[0]:
             local.sym.append(self.visit(vardecl, local))
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
+        # visit statement
+        total_envir = deepcopy(local)
+        total_envir.frame = local.frame
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                # print(name)
+                total_envir.sym.append(self.type_inferrer.symbol(name,c.sym))
         for stmt in ast.body[1]:
-            self.visit(stmt, local)
+            self.visit(stmt, total_envir)
+
+        # update global environment
+        for name in self.type_inferrer.nameList(c.sym):
+            if name not in self.type_inferrer.nameList(local.sym):
+                self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+
         self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
         self.emit.printout(self.emit.emitENDMETHOD(local.frame))
         c.frame.exitScope()

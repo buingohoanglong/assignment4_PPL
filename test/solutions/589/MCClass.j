@@ -40,10 +40,10 @@ Label12:
 Label13:
 	ifle Label11
 Label8:
-	getstatic MCClass/arr [I
+	aload_0
 	iload_1
 	iaload
-	getstatic MCClass/arr [I
+	aload_0
 	iload_2
 	iaload
 	if_icmpge Label16
@@ -57,17 +57,17 @@ Label17:
 	iconst_0
 	istore_3
 Label18:
-	getstatic MCClass/arr [I
+	aload_0
 	iload_1
 	iaload
 	istore_3
-	getstatic MCClass/arr [I
+	aload_0
 	iload_1
-	getstatic MCClass/arr [I
+	aload_0
 	iload_2
 	iaload
 	iastore
-	getstatic MCClass/arr [I
+	aload_0
 	iload_2
 	iload_3
 	iastore
@@ -91,7 +91,7 @@ Label3:
 	istore_1
 	goto Label4
 Label5:
-	getstatic MCClass/arr [I
+	aload_0
 	areturn
 Label1:
 	return

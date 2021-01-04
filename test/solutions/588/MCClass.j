@@ -45,7 +45,7 @@ Label8:
 Label14:
 Label15:
 Label9:
-	getstatic MCClass/arr [Ljava/lang/String;
+	aload_0
 	iload_1
 	aaload
 	invokestatic io/print(Ljava/lang/String;)V

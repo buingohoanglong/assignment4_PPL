@@ -26,7 +26,7 @@ Label7:
 	ifle Label5
 Label2:
 	iload_1
-	getstatic MCClass/x [I
+	aload_0
 	iload_2
 	iaload
 	iadd
