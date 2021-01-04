@@ -2,40 +2,57 @@
 .class public MCClass
 .super java.lang.Object
 
+.method public static foo()[I
+	iconst_5
+	newarray int
+	dup
+	iconst_0
+	iconst_1
+	iastore
+	dup
+	iconst_1
+	iconst_2
+	iastore
+	dup
+	iconst_2
+	iconst_3
+	iastore
+	dup
+	iconst_3
+	iconst_4
+	iastore
+	dup
+	iconst_4
+	iconst_5
+	iastore
+	astore_0
+Label0:
+	aload_0
+	areturn
+Label1:
+	return
+.limit stack 9
+.limit locals 1
+.end method
+
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 .var 1 is x I from Label0 to Label1
-	bipush 6
+	iconst_1
 	istore_1
 Label0:
 	iload_1
+	invokestatic MCClass/foo()[I
 	iconst_2
-	irem
-	iconst_0
-	if_icmpne Label4
-	iconst_1
-	goto Label5
-Label4:
-	iconst_0
-Label5:
-	ifle Label2
-Label6:
-	iconst_0
+	iaload
+	iadd
 	istore_1
-Label7:
-	goto Label3
-Label2:
-Label8:
-	iconst_1
-	istore_1
-Label9:
-Label3:
 	iload_1
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
-.limit stack 8
+.limit stack 5
 .limit locals 2
 .end method
 

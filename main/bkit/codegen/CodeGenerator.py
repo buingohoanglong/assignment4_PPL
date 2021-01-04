@@ -248,16 +248,25 @@ class CodeGenVisitor(BaseVisitor):
         self.type_inferrer.visit(ast, c.sym)
 
         if isinstance(ast.lhs, ArrayCell):
-            arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.name, c.sym)
-            if isinstance(arraycell_sym.value, Index): # local 
-                self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, c.frame))
-            else: # global
-                self.emit.printout(self.emit.emitGETSTATIC(self.className + '/' + arraycell_sym.name, arraycell_sym.mtype, c.frame))
-            idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.lhs.idx]
-            for idx, i in zip(idx_lst, range(len(idx_lst))):
-                self.emit.printout(idx)
-                if i < len(idx_lst) - 1:
-                    self.emit.printout(self.emit.emitALOAD(arraycell_sym.mtype, c.frame))
+            if isinstance(ast.lhs.arr, Id):
+                arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.name, c.sym)
+                if isinstance(arraycell_sym.value, Index): # local 
+                    self.emit.printout(self.emit.emitWRITEVAR2(arraycell_sym.name, arraycell_sym.mtype.eleType, arraycell_sym.value.value, c.frame))
+                else: # global
+                    self.emit.printout(self.emit.emitGETSTATIC(self.className + '/' + arraycell_sym.name, arraycell_sym.mtype, c.frame))
+                idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.lhs.idx]
+                for idx, i in zip(idx_lst, range(len(idx_lst))):
+                    self.emit.printout(idx)
+                    if i < len(idx_lst) - 1:
+                        self.emit.printout(self.emit.emitALOAD(arraycell_sym.mtype, c.frame))
+            elif isinstance(ast.lhs.arr, CallExpr):
+                arraycell_sym = self.type_inferrer.symbol(ast.lhs.arr.method.name, c.sym)
+                self.emit.printout(self.emit.emitINVOKESTATIC(arraycell_sym.value.value + '/' + arraycell_sym.name, arraycell_sym.mtype, c.frame))
+                idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.lhs.idx]
+                for idx, i in zip(idx_lst, range(len(idx_lst))):
+                    self.emit.printout(idx)
+                    if i < len(idx_lst) - 1:
+                        self.emit.printout(self.emit.emitALOAD(arraycell_sym.mtype.rettype, c.frame))      
 
         rhs, rhs_type = self.visit(ast.rhs, Access(c.frame, c.sym, False))
         self.emit.printout(rhs)
@@ -287,6 +296,7 @@ class CodeGenVisitor(BaseVisitor):
 
             # visit if/elif statement
             total_envir = deepcopy(c)
+            total_envir.frame = c.frame
             for name in self.type_inferrer.nameList(local.sym):
                 if name in self.type_inferrer.nameList(c.sym):
                     self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
@@ -295,13 +305,13 @@ class CodeGenVisitor(BaseVisitor):
                     total_envir.sym.append(self.type_inferrer.symbol(name, local.sym))
             for stmt in ast.ifthenStmt[i][2]:
                 self.visit(stmt, total_envir)
-            
-            self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
             # update outer environment
             for name in self.type_inferrer.nameList(c.sym):
                 if name not in self.type_inferrer.nameList(local.sym):
                     self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
+            
+            self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
             c.frame.exitScope()
 
@@ -323,6 +333,7 @@ class CodeGenVisitor(BaseVisitor):
 
         # visit if/elif statement
         total_envir = deepcopy(c)
+        total_envir.frame = c.frame
         for name in self.type_inferrer.nameList(local.sym):
             if name in self.type_inferrer.nameList(c.sym):
                 self.type_inferrer.symbol(name, total_envir.sym).mtype = self.type_inferrer.symbol(name, local.sym).mtype
@@ -627,28 +638,44 @@ class CodeGenVisitor(BaseVisitor):
     def visitArrayCell(self,ast, c):    # ast.arr is callexpr
         self.type_inferrer.visit(ast, c.sym)
 
-        for sym in c.sym:
-            if sym.name == ast.arr.name and not isinstance(sym.mtype, MType):
-                if c.isLeft:    # Id in lhs
-                    if isinstance(sym.value, Index):    # local variable
-                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
-                    elif isinstance(sym.value, CName):  # global variable
-                        return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
-                        # return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
-                else:
-                    idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.idx]
-                    if isinstance(sym.value, Index):    # local variable
-                        return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx_lst, c.frame), sym.mtype.eleType)
-                    elif isinstance(sym.value, CName):  # global variable
-                        code_gen = ""
-                        code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
+        if isinstance(ast.arr, Id):
+            for sym in c.sym:
+                if sym.name == ast.arr.name and not isinstance(sym.mtype, MType):
+                    if c.isLeft:    # Id in lhs
+                        if isinstance(sym.value, Index):    # local variable
+                            return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
+                        elif isinstance(sym.value, CName):  # global variable
+                            return (self.emit.emitASTORE(sym.mtype.eleType, c.frame), sym.mtype.eleType)
+                            # return (self.emit.emitPUTSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame), sym.mtype)
+                    else:
+                        idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.idx]
+                        if isinstance(sym.value, Index):    # local variable
+                            return (self.emit.emitREADVAR2(sym.name, sym.mtype, sym.value.value, idx_lst, c.frame), sym.mtype.eleType)
+                        elif isinstance(sym.value, CName):  # global variable
+                            code_gen = ""
+                            code_gen += self.emit.emitGETSTATIC(self.className + "/" + sym.name, sym.mtype, c.frame)
+                            for idx, i in zip(idx_lst, range(len(idx_lst))):
+                                code_gen += idx
+                                if i < len(idx_lst) - 1:
+                                    code_gen += self.emit.emitALOAD(sym.mtype, c.frame)
+                                else:
+                                    code_gen += self.emit.emitALOAD(sym.mtype.eleType, c.frame)
+                            return (code_gen, sym.mtype.eleType)       
+        elif isinstance(ast.arr, CallExpr):
+            for sym in c.sym:
+                if sym.name == ast.arr.method.name and isinstance(sym.mtype, MType):
+                    if c.isLeft:    # CallExpr in lhs ????
+                        return (self.emit.emitASTORE(sym.mtype.rettype.eleType, c.frame), sym.mtype.rettype.eleType)
+                    else:   # CallExpr in rhs
+                        idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.idx]
+                        code_gen = self.emit.emitINVOKESTATIC(sym.value.value + '/' + sym.name, sym.mtype, c.frame)
                         for idx, i in zip(idx_lst, range(len(idx_lst))):
                             code_gen += idx
                             if i < len(idx_lst) - 1:
-                                code_gen += self.emit.emitALOAD(sym.mtype, c.frame)
+                                code_gen += self.emit.emitALOAD(sym.mtype.rettype, c.frame)
                             else:
-                                code_gen += self.emit.emitALOAD(sym.mtype.eleType, c.frame)
-                        return (code_gen, sym.mtype.eleType)       
+                                code_gen += self.emit.emitALOAD(sym.mtype.rettype.eleType, c.frame)
+                        return (code_gen, sym.mtype.rettype.eleType) 
 
     def visitId(self,ast, c):
         self.type_inferrer.visit(ast, c.sym)

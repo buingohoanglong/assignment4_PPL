@@ -1767,3 +1767,101 @@ class CheckCodeGenSuite(unittest.TestCase):
             EndBody."""
         expect = "342391"
         self.assertTrue(TestCodeGen.test(input,expect,609))
+
+    # test arraycell
+    def test_arraycell_1(self):
+        input = """ 
+        Function: foo
+            Body:
+                Var: x = {1,2,3,4,5};
+                Return x;
+            EndBody.          
+        Function: main
+            Body:
+                Var: x = 1;
+                x = x + foo()[2];
+                print(string_of_int(x));
+            EndBody."""
+        expect = "4"
+        self.assertTrue(TestCodeGen.test(input,expect,610))
+
+    def test_arraycell_2(self):
+        input = """ 
+        Function: foo
+            Body:
+                Return {{1,2,3},{4,5,6}};
+            EndBody.          
+        Function: main
+            Body:
+                Var: x = 1;
+                x = x + foo()[x - 1][x + 1];
+                print(string_of_int(x));
+            EndBody."""
+        expect = "4"
+        self.assertTrue(TestCodeGen.test(input,expect,611))
+
+    def test_arraycell_3(self): # allow assign foo()[x - 1][x + 1] = 7 ????????????????????????????
+        input = """ 
+        Function: foo
+            Body:
+                Return {{1,2,3},{4,5,6}};
+            EndBody.          
+        Function: main
+            Body:
+                Var: x = 1, i = 0, j = 0;
+                For (i = 0, i < 2, 1) Do
+                    For (j = 0, j < 3, 1) Do
+                        print(string_of_int(foo()[i][j]));
+                    EndFor.
+                EndFor.
+                printLn();
+                foo()[x - 1][x + 1] = 7;
+                For (i = 0, i < 2, 1) Do
+                    For (j = 0, j < 3, 1) Do
+                        print(string_of_int(foo()[i][j]));
+                    EndFor.
+                EndFor.
+            EndBody."""
+        expect = "123456\n123456"
+        self.assertTrue(TestCodeGen.test(input,expect,612))
+
+    def test_arraycell_4(self):
+        input = """ 
+        Var: arr[2][3] = {{1,2,3},{4,5,6}};
+        Function: foo
+            Body:
+                Return arr;
+            EndBody.          
+        Function: main
+            Body:
+                Var: x = 1, i = 0, j = 0;
+                For (i = 0, i < 2, 1) Do
+                    For (j = 0, j < 3, 1) Do
+                        print(string_of_int(foo()[i][j]));
+                    EndFor.
+                EndFor.
+                printLn();
+                foo()[x - 1][x + 1] = 7;
+                For (i = 0, i < 2, 1) Do
+                    For (j = 0, j < 3, 1) Do
+                        print(string_of_int(foo()[i][j]));
+                    EndFor.
+                EndFor.
+            EndBody."""
+        expect = "123456\n127456"
+        self.assertTrue(TestCodeGen.test(input,expect,613))
+
+    # test if
+    def test_if_10(self):
+        input = """Function: main
+        Body:
+        Var: n = 120,  array[2][3] = {{867,345,987},{76,12,744}};
+            If n > 10 Then
+                If (n%11 < 10) || (n > array[1][0]) Then 
+                    n = array[0][1] * n % 9 \ 3;
+                EndIf.
+                print(string_of_int(n));
+            EndIf.
+        EndBody."""
+        expect = "0"
+        self.assertTrue(TestCodeGen.test(input,expect,614))
