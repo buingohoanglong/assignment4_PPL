@@ -32,7 +32,8 @@ Label8:
 Label9:
 Label3:
 Label1:
-	return
+	iconst_0
+	ireturn
 .limit stack 8
 .limit locals 1
 .end method
@@ -50,6 +51,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 	return
 Label1:
+	return
 	return
 .limit stack 3
 .limit locals 1

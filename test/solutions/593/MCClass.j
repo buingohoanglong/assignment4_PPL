@@ -133,6 +133,7 @@ Label5:
 	return
 Label1:
 	return
+	return
 .limit stack 23
 .limit locals 4
 .end method

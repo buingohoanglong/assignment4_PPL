@@ -59,6 +59,7 @@ Label5:
 	return
 Label1:
 	return
+	return
 .limit stack 13
 .limit locals 2
 .end method
@@ -89,6 +90,7 @@ Label0:
 	invokestatic MCClass/printSth([Ljava/lang/String;)V
 	return
 Label1:
+	return
 	return
 .limit stack 8
 .limit locals 1

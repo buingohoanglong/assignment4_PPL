@@ -33,6 +33,7 @@ Label4:
 Label5:
 Label1:
 	return
+	return
 .limit stack 8
 .limit locals 2
 .end method

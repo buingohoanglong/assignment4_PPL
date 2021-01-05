@@ -250,6 +250,7 @@ Label23:
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
+	return
 .limit stack 49
 .limit locals 5
 .end method

@@ -11,7 +11,6 @@
 	iconst_3
 	istore_2
 Label0:
-Label4:
 Label2:
 	iload_1
 	iload_2
@@ -22,6 +21,7 @@ Label2:
 	isub
 	istore_2
 Label3:
+Label4:
 	iload_2
 	iconst_0
 	if_icmple Label6
@@ -30,7 +30,7 @@ Label3:
 Label6:
 	iconst_0
 Label7:
-	ifgt Label4
+	ifgt Label2
 Label5:
 	iload_1
 	invokestatic io/string_of_int(I)Ljava/lang/String;
@@ -39,6 +39,7 @@ Label5:
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
+	return
 	return
 .limit stack 7
 .limit locals 3

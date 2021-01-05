@@ -11,7 +11,8 @@ Label0:
 	iadd
 	ireturn
 Label1:
-	return
+	iconst_0
+	ireturn
 .limit stack 2
 .limit locals 2
 .end method
@@ -53,7 +54,8 @@ Label5:
 	iload_2
 	ireturn
 Label1:
-	return
+	iconst_0
+	ireturn
 .limit stack 8
 .limit locals 4
 .end method
@@ -64,7 +66,8 @@ Label0:
 	iconst_1
 	ireturn
 Label1:
-	return
+	iconst_0
+	ireturn
 .limit stack 2
 .limit locals 1
 .end method
@@ -174,6 +177,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 	return
 Label1:
+	return
 	return
 .limit stack 22
 .limit locals 4

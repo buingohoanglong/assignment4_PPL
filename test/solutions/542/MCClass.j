@@ -9,6 +9,7 @@ Label0:
 	putstatic MCClass/x I
 Label1:
 	return
+	return
 .limit stack 2
 .limit locals 0
 .end method
@@ -23,6 +24,7 @@ Label0:
 	invokestatic io/string_of_int(I)Ljava/lang/String;
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
+	return
 	return
 .limit stack 2
 .limit locals 1

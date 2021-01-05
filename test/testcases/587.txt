@@ -9,6 +9,6 @@
                         EndFor.
                         printLn();
                         For (i = 0, i < 3, 1) Do
-                            print(string_of_int(x[i]));
+                            print(string_of_int(y[i]));
                         EndFor.
                    EndBody.

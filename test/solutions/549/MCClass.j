@@ -9,6 +9,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
+	return
 .limit stack 1
 .limit locals 1
 .end method
@@ -18,8 +19,9 @@ Label0:
 	ldc "Hello World"
 	areturn
 Label1:
-	return
-.limit stack 2
+	ldc ""
+	areturn
+.limit stack 3
 .limit locals 0
 .end method
 

@@ -82,7 +82,7 @@ Label12:
 	iconst_0
 Label13:
 	ifle Label11
-	aload_1
+	aload_2
 	iload_3
 	iaload
 	invokestatic io/string_of_int(I)Ljava/lang/String;
@@ -96,6 +96,7 @@ Label10:
 	goto Label8
 Label11:
 Label1:
+	return
 	return
 .limit stack 21
 .limit locals 4

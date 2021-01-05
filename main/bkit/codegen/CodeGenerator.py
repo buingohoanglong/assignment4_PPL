@@ -187,7 +187,28 @@ class CodeGenVisitor(BaseVisitor):
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
         
-        self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        # default return
+        func_symbol = self.type_inferrer.symbol(ast.name.name, c.sym)
+        if isinstance(func_symbol.mtype.rettype, VoidType):
+            self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, IntType):
+            self.emit.printout(self.emit.emitPUSHICONST(0, c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, BoolType):
+            self.emit.printout(self.emit.emitPUSHICONST(0, c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, FloatType):
+            self.emit.printout(self.emit.emitPUSHFCONST(str(0.0), c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame)) 
+        elif isinstance(func_symbol.mtype.rettype, StringType):
+            self.emit.printout(self.emit.emitPUSHCONST("", StringType(), c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, ArrayType):
+            arrayliteral = self.genDefaultArrayLiteral(func_symbol.mtype.rettype.eleType, func_symbol.mtype.rettype.dimen)
+            code_gen, typ = self.visit(arrayliteral, Access(c.frame, c.sym, False))
+            self.emit.printout(code_gen)
+        self.emit.printout(self.emit.emitRETURN(func_symbol.mtype.rettype, local.frame))
+
         self.emit.printout(self.emit.emitENDMETHOD(local.frame))
         c.frame.exitScope()
 
@@ -265,7 +286,28 @@ class CodeGenVisitor(BaseVisitor):
 
         self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
 
-        self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        # default return
+        func_symbol = self.type_inferrer.symbol(ast.name.name, c.sym)
+        if isinstance(func_symbol.mtype.rettype, VoidType):
+            self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, IntType):
+            self.emit.printout(self.emit.emitPUSHICONST(0, c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, BoolType):
+            self.emit.printout(self.emit.emitPUSHICONST(0, c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, FloatType):
+            self.emit.printout(self.emit.emitPUSHFCONST(str(0.0), c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame)) 
+        elif isinstance(func_symbol.mtype.rettype, StringType):
+            self.emit.printout(self.emit.emitPUSHCONST("", StringType(), c.frame))
+            # self.emit.printout(self.emit.emitRETURN(VoidType(), local.frame))
+        elif isinstance(func_symbol.mtype.rettype, ArrayType):
+            arrayliteral = self.genDefaultArrayLiteral(func_symbol.mtype.rettype.eleType, func_symbol.mtype.rettype.dimen)
+            code_gen, typ = self.visit(arrayliteral, Access(c.frame, c.sym, False))
+            self.emit.printout(code_gen)
+        self.emit.printout(self.emit.emitRETURN(func_symbol.mtype.rettype, local.frame))
+
         self.emit.printout(self.emit.emitENDMETHOD(local.frame))
         c.frame.exitScope()
 
@@ -449,6 +491,9 @@ class CodeGenVisitor(BaseVisitor):
         # goto start label
         self.emit.printout(self.emit.emitGOTO(c.frame.getStartLabel(), c.frame))
 
+        # # end label
+        # self.emit.printout(self.emit.emitLABEL(c.frame.getEndLabel(), c.frame))
+
         # break label
         self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
 
@@ -483,7 +528,9 @@ class CodeGenVisitor(BaseVisitor):
 
         c.frame.enterScope(False)
         c.frame.enterLoop()
-        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
+        # self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
+
+        self.emit.printout(self.emit.emitLABEL(c.frame.getStartLabel(), c.frame))
 
         # loop body
         local = MethodEnv(None, [])
@@ -491,7 +538,7 @@ class CodeGenVisitor(BaseVisitor):
         for vardecl in ast.sl[0]:
             local.sym.append(self.visit(vardecl, local))
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
+        # self.emit.printout(self.emit.emitLABEL(local.frame.getStartLabel(), local.frame))
 
         # visit local statement
         total_envir = deepcopy(c)
@@ -510,12 +557,14 @@ class CodeGenVisitor(BaseVisitor):
             if name not in self.type_inferrer.nameList(local.sym):
                 self.type_inferrer.symbol(name, c.sym).mtype = self.type_inferrer.symbol(name, total_envir.sym).mtype
 
-        self.emit.printout(self.emit.emitLABEL(local.frame.getEndLabel(), local.frame))
+        self.emit.printout(self.emit.emitLABEL(c.frame.getEndLabel(), c.frame))
+
+        self.emit.printout(self.emit.emitLABEL(c.frame.getContinueLabel(), c.frame))    # emit continue label
 
         # loop contidtion
         exp, exp_type = self.visit(ast.exp, Access(c.frame, c.sym, False))
         self.emit.printout(exp) # condition expression
-        self.emit.printout(self.emit.emitIFTRUE(c.frame.getContinueLabel(), c.frame)) # if condition true, continue loop
+        self.emit.printout(self.emit.emitIFTRUE(c.frame.getStartLabel(), c.frame)) # if condition true, continue loop
 
         # emit end loop label
         self.emit.printout(self.emit.emitLABEL(c.frame.getBreakLabel(), c.frame))
@@ -704,7 +753,7 @@ class CodeGenVisitor(BaseVisitor):
                         return (self.emit.emitASTORE(sym.mtype.rettype.eleType, c.frame), sym.mtype.rettype.eleType)
                     else:   # CallExpr in rhs
                         idx_lst = [self.visit(idx, Access(c.frame, c.sym, False))[0] for idx in ast.idx]
-                        code_gen = self.emit.emitINVOKESTATIC(sym.value.value + '/' + sym.name, sym.mtype, c.frame)
+                        code_gen, typ = self.visit(ast.arr, Access(c.frame, c.sym, False))
                         for idx, i in zip(idx_lst, range(len(idx_lst))):
                             code_gen += idx
                             if i < len(idx_lst) - 1:
@@ -773,6 +822,19 @@ class CodeGenVisitor(BaseVisitor):
             self.emit.printout(self.emit.emitPUSHFCONST(value, frame))
         elif isinstance(value_type, StringType):
             self.emit.printout(self.emit.emitPUSHCONST(value, value_type, frame))
+
+    def genDefaultArrayLiteral(self, eleType, dimen):
+        values = []
+        if isinstance(eleType, IntType):
+            return ArrayLiteral([IntLiteral(0)] * dimen[0])
+        elif isinstance(eleType, BoolType):
+            return ArrayLiteral([BooleanLiteral(False)] * dimen[0])
+        elif isinstance(eleType, FloatType):
+            return ArrayLiteral([FloatLiteral(0.0)] * dimen[0])
+        elif isinstance(eleType, StringType):
+            return ArrayLiteral([StringLiteral("")] * dimen[0])
+        elif isinstance(eleType, ArrayType):
+            return ArrayLiteral([ArrayLiteral(self.getDefaultArrayLiteral(eleType, dimen[1:]))] * dimen[0])
 
 
 

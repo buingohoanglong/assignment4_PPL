@@ -138,6 +138,7 @@ Label16:
 Label17:
 Label1:
 	return
+	return
 .limit stack 28
 .limit locals 3
 .end method

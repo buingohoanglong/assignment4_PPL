@@ -13,6 +13,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
+	return
 .limit stack 2
 .limit locals 1
 .end method
@@ -22,6 +23,7 @@ Label0:
 	ldc "My name is Long"
 	putstatic MCClass/x Ljava/lang/String;
 Label1:
+	return
 	return
 .limit stack 2
 .limit locals 0

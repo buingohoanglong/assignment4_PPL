@@ -10,6 +10,7 @@ Label0:
 	invokestatic io/print(Ljava/lang/String;)V
 Label1:
 	return
+	return
 .limit stack 1
 .limit locals 1
 .end method
@@ -20,6 +21,7 @@ Label0:
 	iconst_1
 	invokestatic MCClass/foo(I)V
 Label1:
+	return
 	return
 .limit stack 2
 .limit locals 1

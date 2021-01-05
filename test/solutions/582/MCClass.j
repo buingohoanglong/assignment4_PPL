@@ -238,6 +238,7 @@ Label22:
 Label23:
 Label1:
 	return
+	return
 .limit stack 47
 .limit locals 5
 .end method
@@ -328,7 +329,17 @@ Label0:
 	aload_0
 	areturn
 Label1:
-	return
+	iconst_2
+	newarray int
+	dup
+	iconst_0
+	iconst_0
+	iastore
+	dup
+	iconst_1
+	iconst_0
+	iastore
+	areturn
 .limit stack 18
 .limit locals 1
 .end method

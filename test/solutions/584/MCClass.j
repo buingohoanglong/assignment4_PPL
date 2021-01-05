@@ -238,6 +238,7 @@ Label22:
 Label23:
 Label1:
 	return
+	return
 .limit stack 47
 .limit locals 5
 .end method
@@ -410,6 +411,7 @@ Label4:
 	goto Label2
 Label5:
 Label1:
+	return
 	return
 .limit stack 32
 .limit locals 5
